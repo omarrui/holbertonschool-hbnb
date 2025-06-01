@@ -1,0 +1,25 @@
+classDiagram
+
+class PresentationLayer {
+    +UserController
+    +PlaceController
+    +ReviewController
+    +AmenityController
+    +WebServices
+    +ClientUI
+}
+
+class BusinessLogicLayer {
+    +UserManager
+    +PlaceManager
+    +ReviewManager
+    +AmenityManager
+}
+
+class PersistenceLayer {
+    +UserDAO
+    +PlaceDAO
+    +ReviewDAO
+    +AmenityDAO
+    +DatabaseConnection
+}
