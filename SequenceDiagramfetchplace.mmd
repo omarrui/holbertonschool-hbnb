@@ -18,3 +18,9 @@ sequenceDiagram
 
     PersistenceLayer->>BusinessLogicLayer: Returns list of places
     Note over PersistenceLayer,BusinessLogicLayer: Converts to Place objects
+
+    BusinessLogicLayer->>PresentationLayer: Returns filtered list
+    Note over BusinessLogicLayer,PresentationLayer: Applies business rules
+
+    PresentationLayer->>User: Returns formatted list of places
+    Note over PresentationLayer,User: JSON/HTML response
