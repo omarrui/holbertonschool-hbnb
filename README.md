@@ -119,7 +119,7 @@ classDiagram
 
   ⚙️ Key Functionalities:
   
-
+```mermaid
   🧾 User Registration
 sequenceDiagram
 participant Client
@@ -140,8 +140,9 @@ else Valid Input
     ServiceLayer-->>FrontendLayer: Confirmation response
     FrontendLayer-->>Client: Display success message
 end
+```
 
-
+```mermaid
 🏡 Place Creation
 sequenceDiagram
 participant Host
@@ -165,8 +166,9 @@ else Validation failed
     ServiceLayer-->>FrontendLayer: Return error details
     FrontendLayer-->>Host: Show form errors
 end
+```
 
-
+```mermaid
 🔍 Place Listing
 sequenceDiagram
 participant User
@@ -183,8 +185,9 @@ DataLayer->>DataLayer: Execute SQL/filter logic
 DataLayer-->>ServiceLayer: Return results
 ServiceLayer-->>FrontendLayer: Format and filter results
 FrontendLayer-->>User: Display place listings
+```
 
-
+```mermaid
 📝 Review Submission
 sequenceDiagram
 participant User
@@ -208,7 +211,7 @@ else Failed
     ServiceLayer-->>FrontendLayer: Return validation error
     FrontendLayer-->>User: Display error
 end
-
+```
 
 🛠️ Technologies Used
 (nothing yet)
