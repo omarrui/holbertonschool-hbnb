@@ -1,15 +1,23 @@
-User->>API: POST /reviews (review data)
-API->>BusinessLogic: Validate and process review
-alt Validation fails
-    BusinessLogic-->>API: Return validation error
-    API-->>User: 400 Bad Request + error message
-else Validation succeeds
-    BusinessLogic->>ReviewModel: Create review object
-    ReviewModel->>Database: INSERT review
-    Database-->>ReviewModel: Confirm insert
-    ReviewModel->>Audit: Log review creation
-    Audit-->>ReviewModel: Confirm log
-    ReviewModel-->>BusinessLogic: Return created review
-    BusinessLogic-->>API: Return review
-    API-->>User: 201 Created + review data
-end
+sequenceDiagram
+    participant User
+    participant API
+    participant BusinessLogic
+    participant ReviewModel
+    participant Database
+    participant Audit
+
+    User->>API: POST /reviews (review data)
+    API->>BusinessLogic: Validate review data (check user/place exists)
+    alt Validation fails
+        BusinessLogic-->>API: Return validation error
+        API-->>User: 400 Bad Request + error message
+    else Validation succeeds
+        BusinessLogic->>ReviewModel: Create review object
+        ReviewModel->>Database: INSERT INTO reviews
+        Database-->>ReviewModel: Confirm insert
+        ReviewModel->>Audit: Log review creation
+        Audit-->>ReviewModel: Confirm log
+        ReviewModel-->>BusinessLogic: Return created review
+        BusinessLogic-->>API: Return review
+        API-->>User: 201 Created + review data
+    end
