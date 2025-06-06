@@ -53,8 +53,9 @@ This system is structured using a **three-layer architecture** for modularity an
     ServiceLayer --> DataLayer : Interacts with DB
 ```
 🧩 Data Model
+
+The structure of the application’s entities is as follows:
 ```mermaid
-    The structure of the application’s entities is as follows:
     classDiagram
     class BaseModel {
         + UUID id
@@ -119,8 +120,9 @@ This system is structured using a **three-layer architecture** for modularity an
 ```
   ⚙️ Key Functionalities:
   
+   🧾 User Registration
 ```mermaid
-    🧾 User Registration
+   
     sequenceDiagram
     participant Client
     participant FrontendLayer
@@ -142,8 +144,9 @@ This system is structured using a **three-layer architecture** for modularity an
     end
 ```
 
+🏡 Place Creation
+    
 ```mermaid
-    🏡 Place Creation
     sequenceDiagram
     participant Host
     participant FrontendLayer
@@ -168,8 +171,9 @@ This system is structured using a **three-layer architecture** for modularity an
     end
 ```
 
+🔍 Place Listing
 ```mermaid
-    🔍 Place Listing
+    
     sequenceDiagram
     participant User
     participant FrontendLayer
@@ -187,8 +191,9 @@ This system is structured using a **three-layer architecture** for modularity an
     FrontendLayer-->>User: Display place listings
 ```
 
+ 📝 Review Submission
 ```mermaid
-    📝 Review Submission
+   
     sequenceDiagram
     participant User
     participant FrontendLayer
