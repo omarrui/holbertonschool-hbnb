@@ -1,0 +1,28 @@
+classDiagram
+
+class PresentationLayer {
+    +UserController
+    +PlaceController
+    +ReviewController
+    +AmenityController
+    +WebServices
+    
+}
+
+class BusinessLogicLayer {
+    +UserManager
+    +PlaceManager
+    +ReviewManager
+    +AmenityManager
+}
+
+class PersistenceLayer {
+    +UserDAO
+    +PlaceDAO
+    +ReviewDAO
+    +AmenityDAO
+    +DatabaseConnection
+}
+
+PresentationLayer --> BusinessLogicLayer : Facade Pattern (Interface)
+BusinessLogicLayer --> PersistenceLayer : Data Access
