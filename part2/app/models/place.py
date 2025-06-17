@@ -1,31 +1,44 @@
 from app.models.base import BaseModel
 
+
 class Place(BaseModel):
-    def __init__(self, title, description, price, latitude, longitude, owner):
+    def __init__(
+            self, title, description, price, latitude, longitude, owner_id):
         super().__init__()
         self.title = title
         self.description = description
         self.price = price
         self.latitude = latitude
         self.longitude = longitude
-        self.owner = owner  # User instance
-        self.reviews = []
+        self.owner_id = owner_id
         self.amenities = []
 
     def checking(self):
-        if not self.title or len(self.title) > 100:
-            raise ValueError("Title is required and must be <= 100 characters")
         if self.price is None or self.price < 0:
-            raise ValueError("Price must be a positive value")
-        if self.latitude is None or not (-90.0 <= self.latitude <= 90.0):
-            raise ValueError("Latitude must be between -90.0 and 90.0")
-        if self.longitude is None or not (-180.0 <= self.longitude <= 180.0):
-            raise ValueError("Longitude must be between -180.0 and 180.0")
-        if not self.owner:
-            raise ValueError("Owner is required")
+            raise ValueError("Le prix doit être un nombre positif.")
 
-    def add_review(self, review):
-        self.reviews.append(review)
+        if self.latitude is None or not (-90 <= self.latitude <= 90):
+            raise ValueError("La latitude doit être comprise entre -90 et 90.")
 
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
+        if self.longitude is None or not (-180 <= self.longitude <= 180):
+            raise ValueError(
+                "La longitude doit être comprise entre -180 et 180."
+            )
+
+        if not isinstance(self.description, str) or len(self.description) < 10:
+            raise ValueError(
+                "La description doit être une chaîne de 10 caractères minimum."
+            )
+
+        if not (isinstance(self.owner_id, str) or
+                len(self.owner_id.strip()) == 0):
+            raise ValueError(
+                "L'owner doit être une chaîne de caractères non vide."
+            )
+
+        if not isinstance(self.title, str) or len(self.title.strip()) < 3:
+            raise ValueError(
+                "Le titre doit être une chaîne de 3 caractères minimum."
+            )
+
+        return True
