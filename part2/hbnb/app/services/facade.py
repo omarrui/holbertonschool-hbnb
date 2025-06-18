@@ -12,10 +12,19 @@ class HBnBFacade:
         self.review_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
 
+    # USER METHODS
+    def create_user(self, user_data):
+        user = User(**user_data)
+        self.user_repo.add(user)
+        return user
 
+    def get_user(self, user_id):
+        return self.user_repo.get(user_id)
+
+    def get_user_by_email(self, email):
+        return self.user_repo.get_by_attribute('email', email)
 
     # AMENITY METHODS
-
     def create_amenity(self, amenity_data):
         amenity = Amenity(**amenity_data)
         amenity.checking()
@@ -36,8 +45,6 @@ class HBnBFacade:
 
     # REVIEW METHODS
     def create_review(self, review_data):
-        """Create a new review"""
-        # Create and validate new user
         review = Review(**review_data)
         review.checking()
         self.review_repo.add(review)
@@ -50,13 +57,9 @@ class HBnBFacade:
         return self.review_repo.get_all()
 
     def get_reviews_by_place(self, place_id):
-        """Get all reviews for a specific place"""
-        # First check if place exists
         place = self.get_place(place_id)
         if not place:
             return None
-
-        # Return all reviews for this place
         return [
             review for review in self.review_repo.get_all()
             if review.place_id == place_id
@@ -72,18 +75,11 @@ class HBnBFacade:
         return self.review_repo.delete(review_id)
 
     # PLACES METHODS
-
     def create_place(self, place_data):
         amenities = place_data.pop('amenities', [])
-
-        # Create and validate place
         place = Place(**place_data)
         place.checking()
-
-        # Add amenities back to place
         place.amenities = amenities
-
-        # Save place to repository
         self.place_repo.add(place)
         return place
 
@@ -95,15 +91,9 @@ class HBnBFacade:
 
     def update_place(self, place_id, place_data):
         amenities = place_data.pop('amenities', [])
-
-        # Create and validate place
         place = Place(**place_data)
         place.checking()
-
-        # Add amenities back to place
         place.amenities = amenities
-
-        # Save place to repository
         self.place_repo.update(place_id, place_data)
         return place
 
@@ -113,4 +103,3 @@ class HBnBFacade:
                 if place.title == title),
             None
         )
- 
