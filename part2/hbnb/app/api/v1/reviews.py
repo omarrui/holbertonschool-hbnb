@@ -82,7 +82,7 @@ class ReviewResource(Resource):
             'place_id': review.place_id
         }, 200
 
-    @api.expect(review_model, validate=True)
+    @api.expect(review_model)  # REMOVE validate=True
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
@@ -93,6 +93,11 @@ class ReviewResource(Resource):
             return {'error': 'Review not found'}, 404
 
         data = api.payload
+
+        allowed_fields = {"text", "rating", "user_id", "place_id"}
+        # If any unknown fields, return 400
+        if not any(field in data for field in allowed_fields) or any(field not in allowed_fields for field in data):
+            return {'error': 'No valid fields to update'}, 400
 
         # Validate place_id exists
         if 'place_id' in data:
@@ -113,8 +118,17 @@ class ReviewResource(Resource):
                     data['rating'] > 5):
                 return {'error': 'Rating must be between 1 and 5'}, 400
 
+        # Merge existing review data with update
+        merged = {
+            "text": review.text,
+            "rating": review.rating,
+            "user_id": review.user_id,
+            "place_id": review.place_id
+        }
+        merged.update(data)
+
         try:
-            facade.update_review(review_id, data)
+            facade.update_review(review_id, merged)
             updated_review = facade.get_review(review_id)
             return {
                 'id': updated_review.id,
