@@ -69,7 +69,7 @@ Run the application
 	•	Python3
 	•	Flask
 	•	Flask-RESTx
-    •	Virtualenv
+	•	Virtualenv
 
 ⸻
 
