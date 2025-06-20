@@ -11,7 +11,7 @@ The goal of this part is to:
 - Prepare for future database integration using SQLAlchemy
 
 ---
-```markdown
+```
 	## 🗂️ Project Structure
 	hbnb/
 	├── app/
