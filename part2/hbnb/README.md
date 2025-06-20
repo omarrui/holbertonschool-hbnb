@@ -11,35 +11,36 @@ The goal of this part is to:
 - Prepare for future database integration using SQLAlchemy
 
 ---
-
-## 🗂️ Project Structure
-hbnb/
-├── app/
-│   ├── init.py                 # Flask app initialization
-│   ├── api/                        # API layer (Flask routes)
-│   │   ├── init.py
-│   │   └── v1/
-│   │       ├── init.py
-│   │       ├── users.py
-│   │       ├── places.py
-│   │       ├── reviews.py
-│   │       └── amenities.py
-│   ├── models/                     # Data models / business logic
-│   │   ├── init.py
-│   │   ├── user.py
-│   │   ├── place.py
-│   │   ├── review.py
-│   │   └── amenity.py
-│   ├── services/                   # Facade layer (connects logic to persistence)
-│   │   ├── init.py
-│   │   └── facade.py
-│   └── persistence/               # In-memory data handling
-│       ├── init.py
-│       └── repository.py
-├── config.py                       # App configuration
-├── requirements.txt                # Project dependencies
-├── run.py                          # App entry point
-└── README.md                       # This file
+```markdown
+	## 🗂️ Project Structure
+	hbnb/
+	├── app/
+	│   ├── init.py                 # Flask app initialization
+	│   ├── api/                        # API layer (Flask routes)
+	│   │   ├── init.py
+	│   │   └── v1/
+	│   │       ├── init.py
+	│   │       ├── users.py
+	│   │       ├── places.py
+	│   │       ├── reviews.py
+	│   │       └── amenities.py
+	│   ├── models/                     # Data models / business logic
+	│   │   ├── init.py
+	│   │   ├── user.py
+	│   │   ├── place.py
+	│   │   ├── review.py
+	│   │   └── amenity.py
+	│   ├── services/                   # Facade layer (connects logic to persistence)
+	│   │   ├── init.py
+	│   │   └── facade.py
+	│   └── persistence/               # In-memory data handling
+	│       ├── init.py
+	│       └── repository.py
+	├── config.py                       # App configuration
+	├── requirements.txt                # Project dependencies
+	├── run.py                          # App entry point
+	└── README.md                       # This file
+```
 ---
 
 ## 🚀 Getting Started
@@ -165,6 +166,6 @@ How to Run Specific Tests
 👥 Authors
 
 	Omar Rouigui & Herve 
-	
+
 	GitHub: @omarrui
 
