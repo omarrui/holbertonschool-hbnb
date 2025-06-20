@@ -165,7 +165,7 @@ How to Run Specific Tests
 
 👥 Authors
 
-	Omar Rouigui & Herve 
+	Omar Rouigui & Herve Riche
 
 	GitHub: @omarrui
 
