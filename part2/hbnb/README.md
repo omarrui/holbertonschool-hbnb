@@ -155,12 +155,16 @@ test_all.py
 How to Run Specific Tests
 	To run a specific test file, use:
 
-		python -m unittest [test_user.py](http://_vscodecontentref_/2)
+		python -m unittest test_user.py
 	or
-		python -m unittest [test_place.py](http://_vscodecontentref_/3)
+		python -m unittest test_place.py
 	or
-		python -m unittest [test_all.py](http://_vscodecontentref_/3)
+		python -m unittest test_all.py
+
 
 👥 Authors
+
 	Omar Rouigui & Herve 
+	
 	GitHub: @omarrui
+
