@@ -1,6 +1,7 @@
 from flask_restx import Namespace, Resource, fields
 from app.services import facade
 from app.models.user import User
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 api = Namespace('users', description='User operations')
 
@@ -84,34 +85,25 @@ class UserResource(Resource):
             'updated_at': user.updated_at.isoformat()
         }, 200
 
-    @api.expect(user_update_model)
-    @api.response(200, 'User updated successfully')
-    @api.response(404, 'User not found')
-    @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, user_id):
-        """Update user details (partial update allowed)"""
-        user = facade.get_user(user_id)
-        if not user:
-            return {'error': 'User not found'}, 404
-        
-        data = api.payload
+        """Modify user information"""
+        current_user = get_jwt_identity()
+        user_data = api.payload
 
-        # Validate only provided fields
-        if "email" in data:
-            if not User.is_valid_email(data['email']):
-                return {'error': 'Invalid email format'}, 400
-            existing = facade.get_user_by_email(data['email'])
-            if existing and existing.id != user_id:
-                return {'error': 'Email already registered'}, 400
-        
-        if "first_name" in data and (not data["first_name"] or len(data["first_name"]) > 50):
-            return {'error': 'First name is required and must be <= 50 characters'}, 400
-        
-        if "last_name" in data and (not data["last_name"] or len(data["last_name"]) > 50):
-            return {'error': 'Last name is required and must be <= 50 characters'}, 400
+        # Check if the user is modifying their own data
+        if str(current_user['id']) != user_id:
+            return {'error': 'Unauthorized action'}, 403
 
-        try:
-            facade.update_user(user_id, data)
-            return {"message": "User updated successfully"}, 200
-        except Exception as e:
-            return {'error': str(e)}, 400
+        # Prevent modification of email and password
+        if 'email' in user_data or 'password' in user_data:
+            return {'error': 'You cannot modify email or password'}, 400
+
+        # Update the user
+        updated_user = facade.update_user(user_id, user_data)
+        return {
+            'id': updated_user.id,
+            'first_name': updated_user.first_name,
+            'last_name': updated_user.last_name,
+            'email': updated_user.email
+        }, 200
