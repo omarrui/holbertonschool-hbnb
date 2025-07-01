@@ -1,6 +1,11 @@
 from flask import Flask
 from flask_restx import Api
 from app.extensions import db, bcrypt, jwt
+from flask_bcrypt import Bcrypt#regiser the plug in within the application
+from flask_jwt_extended import JWTManager
+
+jwt = JWTManager()
+bcrypt = Bcrypt()
 
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
