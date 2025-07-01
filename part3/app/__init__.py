@@ -3,7 +3,7 @@ from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
 from flask_sqlalchemy import SQLAlchemy 
-from app.extensions import db, bcrypt, jwt
+from part3.hbnb.extensions import db, bcrypt, jwt
 
 jwt = JWTManager()
 bcrypt = Bcrypt()
