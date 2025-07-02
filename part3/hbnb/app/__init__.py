@@ -1,11 +1,15 @@
 from flask import Flask
 from flask_restx import Api
-from app.extensions import db, bcrypt, jwt
+from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from app.extensions import db, bcrypt, jwt
 
+# Initialize extensions
+db = SQLAlchemy()
 jwt = JWTManager()
 
 def create_app(config_class="config.DevelopmentConfig"):
+    """Create and configure the Flask application."""
     app = Flask(__name__)
     
     # Load configuration
@@ -32,8 +36,5 @@ def create_app(config_class="config.DevelopmentConfig"):
     api.add_namespace(reviews_ns, path='/api/v1/reviews')
     api.add_namespace(protected_ns, path='/api/v1/protected')
     
-    # Create database tables
-    with app.app_context():
-        db.create_all()
-
+    # Return the app instance
     return app
