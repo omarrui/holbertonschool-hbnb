@@ -140,3 +140,11 @@ class HBnBFacade:
         """Get all reviews for a specific place."""
         reviews = self.get_all_reviews()
         return [review for review in reviews if review.place_id == place_id]
+
+    def get_review_by_user_and_place(self, user_id, place_id):
+        """Check if a user has already reviewed a place."""
+        reviews = self.get_all_reviews()
+        for review in reviews:
+            if review.user_id == user_id and review.place_id == place_id:
+                return review
+        return None

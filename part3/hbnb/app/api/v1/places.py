@@ -7,10 +7,10 @@ api = Namespace('places', description='Place operations')
 
 place_model = api.model('Place', {
     'title': fields.String(required=True, description='Title of the place'),
-    'description': fields.String(required=False, description='Description of the place'),
+    'description': fields.String(required=True, description='Description of the place'),
     'price': fields.Float(required=True, description='Price per night'),
-    'latitude': fields.Float(required=False, description='Latitude of the place'),
-    'longitude': fields.Float(required=False, description='Longitude of the place'),
+    'latitude': fields.Float(required=True, description='Latitude of the place'),
+    'longitude': fields.Float(required=True, description='Longitude of the place'),
     'owner_id': fields.String(required=True, description='ID of the place owner'),
     'amenities': fields.List(fields.String, description='List of amenity IDs')
 })
@@ -23,11 +23,14 @@ class PlaceList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Create a new place"""
-        current_user = get_jwt_identity()  # Get the authenticated user's identity
+        current_user = get_jwt_identity()
         place_data = api.payload
-
-        # Add the owner_id to the place data
-        place_data['owner_id'] = current_user['id']
+        
+        is_admin = current_user.get('is_admin', False)
+        
+        # If not admin, set owner_id to current user
+        if not is_admin:
+            place_data['owner_id'] = current_user['id']
 
         # Validate owner exists
         owner = facade.get_user(place_data['owner_id'])
@@ -76,6 +79,15 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
             
+        # Get owner details
+        owner = facade.get_user(place.owner_id)
+        owner_data = {
+            'id': owner.id,
+            'first_name': owner.first_name,
+            'last_name': owner.last_name,
+            'email': owner.email
+        } if owner else None
+
         return {
             'id': place.id,
             'title': place.title,
@@ -83,14 +95,18 @@ class PlaceResource(Resource):
             'price': place.price,
             'latitude': place.latitude,
             'longitude': place.longitude,
-            'owner_id': place.owner_id,
+            'owner': owner_data,
             'amenities': place.amenities
         }, 200
 
     @jwt_required()
+    @api.expect(place_model)
+    @api.response(200, 'Place updated successfully')
+    @api.response(404, 'Place not found')
+    @api.response(403, 'Unauthorized action')
     def put(self, place_id):
         """Update a place's details"""
-        current_user = get_jwt_identity()  # Get the authenticated user's identity
+        current_user = get_jwt_identity()
         place_data = api.payload
 
         # Retrieve the place
@@ -98,29 +114,37 @@ class PlaceResource(Resource):
         if not place:
             return {'error': 'Place not found'}, 404
 
-        # Check if the current user is the owner of the place
-        if place.owner_id != current_user['id']:
+        is_admin = current_user.get('is_admin', False)
+        user_id = current_user.get('id')
+
+        # Check authorization - admin can modify any place
+        if not is_admin and place.owner_id != user_id:
             return {'error': 'Unauthorized action'}, 403
 
-        # Update the place
-        updated_place = facade.update_place(place_id, place_data)
-        return {
-            'id': updated_place.id,
-            'title': updated_place.title,
-            'description': updated_place.description,
-            'price': updated_place.price,
-            'latitude': updated_place.latitude,
-            'longitude': updated_place.longitude,
-            'owner_id': updated_place.owner_id
-        }, 200
+        try:
+            facade.update_place(place_id, place_data)
+            return {'message': 'Place updated successfully'}, 200
+        except ValueError as e:
+            return {'error': str(e)}, 400
 
+    @jwt_required()
     @api.response(200, 'Place deleted successfully')
     @api.response(404, 'Place not found')
+    @api.response(403, 'Unauthorized action')
     def delete(self, place_id):
         """Delete a place"""
+        current_user = get_jwt_identity()
+
         place = facade.get_place(place_id)
         if not place:
             return {'error': 'Place not found'}, 404
+
+        is_admin = current_user.get('is_admin', False)
+        user_id = current_user.get('id')
+
+        # Check authorization - admin can delete any place
+        if not is_admin and place.owner_id != user_id:
+            return {'error': 'Unauthorized action'}, 403
             
         facade.place_repo.delete(place_id)
         return {'message': 'Place deleted successfully'}, 200
