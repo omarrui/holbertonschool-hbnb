@@ -4,6 +4,7 @@ from app.models.review import Review
 from app.models.amenity import Amenity
 from app.persistence.repository import SQLAlchemyRepository
 
+
 class HBnBFacade:
     def __init__(self):
         self.user_repo = SQLAlchemyRepository(User)
@@ -14,13 +15,11 @@ class HBnBFacade:
     # User methods
     def create_user(self, user_data):
         """Create a new user with hashed password."""
-        # Validate required fields
         required_fields = ['first_name', 'last_name', 'email']
         for field in required_fields:
             if field not in user_data or not user_data[field]:
                 raise ValueError(f"Missing required field: {field}")
 
-        # Create user instance (password will be hashed in __init__ if provided)
         user = User(
             first_name=user_data['first_name'],
             last_name=user_data['last_name'],
@@ -28,11 +27,7 @@ class HBnBFacade:
             password=user_data.get('password'),
             is_admin=user_data.get('is_admin', False)
         )
-        
-        # Validate user data
         user.checking()
-        
-        # Save to repository
         self.user_repo.add(user)
         return user
 
@@ -53,11 +48,8 @@ class HBnBFacade:
         user = self.get_user(user_id)
         if not user:
             return None
-        
-        # Don't allow password updates through this method
         if 'password' in user_data:
             del user_data['password']
-        
         return self.user_repo.update(user_id, user_data)
 
     # Place methods
@@ -106,6 +98,10 @@ class HBnBFacade:
     def update_amenity(self, amenity_id, amenity_data):
         """Update an amenity."""
         return self.amenity_repo.update(amenity_id, amenity_data)
+
+    def delete_amenity(self, amenity_id):
+        """Delete an amenity by its ID."""
+        return self.amenity_repo.delete(amenity_id)
 
     # Review methods
     def create_review(self, review_data):

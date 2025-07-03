@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from app.extensions import db  # Fixed import path
+from app import db
+from app.models.amenity import Amenity
 
 class Repository(ABC):
     @abstractmethod
@@ -85,3 +87,32 @@ class SQLAlchemyRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return self.model.query.filter_by(**{attr_name: attr_value}).first()
+    
+    class AmenityRepository:
+        def add(self, amenity):
+            """Add a new amenity to the database."""
+            db.session.add(amenity)
+            db.session.commit()
+
+        def get(self, amenity_id):
+            """Retrieve an amenity by its ID."""
+            return Amenity.query.get(amenity_id)
+
+        def get_all(self):
+            """Retrieve all amenities."""
+            return Amenity.query.all()
+
+        def update(self, amenity_id, data):
+            """Update an amenity's attributes."""
+            amenity = self.get(amenity_id)
+            if amenity:
+                for key, value in data.items():
+                    setattr(amenity, key, value)
+                db.session.commit()
+
+        def delete(self, amenity_id):
+            """Delete an amenity by its ID."""
+            amenity = self.get(amenity_id)
+            if amenity:
+                db.session.delete(amenity)
+                db.session.commit()

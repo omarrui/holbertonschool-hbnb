@@ -5,6 +5,7 @@ from app.extensions import db
 class Review(BaseModel):
     __tablename__ = 'reviews'
 
+    id = db.Column(db.Integer, primary_key=True)  # Primary key
     text = db.Column(db.Text, nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
@@ -17,22 +18,18 @@ class Review(BaseModel):
         self.place_id = place_id
         self.user_id = user_id
 
-    def checking(self):
-        # Vérification du texte
-        if self.text is None or not isinstance(self.text, str):
-            raise ValueError("Le texte doit être une chaîne de caractères.")
+    def validate(self):
+        """Validate the Review attributes."""
+        if self.text is None or not isinstance(self.text, str) or len(self.text.strip()) == 0:
+            raise ValueError("Review text must be a non-empty string.")
 
-        if self.rating is None or not (0 < self.rating <= 5):
-            raise ValueError(
-                "La note doit être un nombre entier entre 0 et 5."
-            )
+        if self.rating is None or not (1 <= self.rating <= 5):
+            raise ValueError("Rating must be an integer between 1 and 5.")
 
-        if self.place_id is None or not isinstance(self.place_id, str):
-            raise ValueError("Le lieu doit être une chaîne de caractères.")
+        if self.place_id is None or not isinstance(self.place_id, str) or len(self.place_id.strip()) == 0:
+            raise ValueError("Place ID must be a non-empty string.")
 
-        if self.user_id is None or not isinstance(self.user_id, str):
-            raise ValueError(
-                "L'utilisateur doit être une chaîne de caractères."
-            )
+        if self.user_id is None or not isinstance(self.user_id, str) or len(self.user_id.strip()) == 0:
+            raise ValueError("User ID must be a non-empty string.")
 
         return True
