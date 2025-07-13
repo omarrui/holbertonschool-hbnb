@@ -1,26 +1,40 @@
 #!/usr/bin/env python3
-"""Model for amenities"""
+from sqlalchemy.ext.hybrid import hybrid_property
 
+from app import db
 from app.models.base import BaseModel
-from app.extensions import db
 
 
 class Amenity(BaseModel):
+    """
+    Class representing an amenity.
+    """
+
     __tablename__ = 'amenities'
 
-    id = db.Column(db.Integer, primary_key=True)  # Primary key
-    name = db.Column(db.String(100), nullable=False, unique=True)
+    _name = db.Column(db.String(128), nullable=False, unique=True)
 
-    def __init__(self, name):
-        super().__init__()
-        self.name = name
+    # Add the places relationship
+    places = db.relationship(
+        'Place',
+        secondary='place_amenity',
+        back_populates='amenities'
+    )
 
-    def validate(self):
-        """Validate the Amenity attributes."""
-        if not isinstance(self.name, str) or len(self.name.strip()) == 0:
-            raise ValueError("Amenity name must be a non-empty string.")
+    @hybrid_property
+    def name(self):
+        """
+        Get the amenity name.
+        """
+        return self._name
 
-        if len(self.name) > 100:
-            raise ValueError("Amenity name must be ≤ 100 characters.")
-
-        return True
+    @name.setter
+    def name(self, value):
+        """
+        Set the amenity name.
+        """
+        if not value:
+            raise ValueError('Amenity name cannot be empty.')
+        if len(value) > 128:
+            raise ValueError('Amenity name length exceeds 128 characters.')
+        self._name = value

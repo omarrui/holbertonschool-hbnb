@@ -4,5 +4,3 @@ flask-bcrypt
 flask-jwt-extended
 sqlalchemy
 flask-sqlalchemy
-sqlalchemy
-flask-sqlalchemy
