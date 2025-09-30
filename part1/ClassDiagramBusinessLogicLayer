@@ -1,0 +1,78 @@
+---
+title: HBnB Business Logic Layer - Class Diagram
+---
+
+classDiagram
+    %% ===============================
+    %% Entity Definitions
+    %% ===============================
+
+    class ModelUser {
+        +UUID4 id
+        +str first_name
+        +str last_name
+        +str email
+        +str password
+        +bool is_admin
+        +datetime created_at
+        +datetime updated_at
+        +create_user()
+        +update_user()
+        +delete_user()
+        +list_places()
+    }
+
+    class ModelPlace {
+        +UUID4 id
+        +UUID4 user_id
+        +str title
+        +str description
+        +float price
+        +float latitude
+        +float longitude
+        +datetime created_at
+        +datetime updated_at
+        +create_place()
+        +update_place()
+        +delete_place()
+        +list_reviews()
+        +list_amenities()
+    }
+
+    class ModelReview {
+        +UUID4 id
+        +UUID4 user_id
+        +UUID4 place_id
+        +int rating
+        +str comment
+        +datetime created_at
+        +datetime updated_at
+        +create_review()
+        +update_review()
+        +delete_review()
+    }
+
+    class ModelAmenity {
+        +UUID4 id
+        +str name
+        +str description
+        +datetime created_at
+        +datetime updated_at
+        +create_amenity()
+        +update_amenity()
+        +delete_amenity()
+    }
+
+    class ModelPlaceAmenity {
+        +UUID4 id
+        +UUID4 place_id
+        +UUID4 amenity_id
+    }
+
+    %% ===============================
+    %% Relationships
+    %% ===============================
+    ModelUser "1" o-- "0..*" ModelPlace : owns >
+    ModelPlace "1" --> "0..*" ModelReview : has >
+    ModelPlace "1" --> "0..*" ModelPlaceAmenity : links >
+    ModelPlaceAmenity "0..*" --> "1" ModelAmenity : associates with >
