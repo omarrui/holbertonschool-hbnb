@@ -1,57 +1,37 @@
 ```mermaid
 sequenceDiagram
-participant Interface as Interface (User)
-participant API as API (Presentation Layer)
-participant UserModel as UserModel (Business Logic Layer)
-participant UserRepository as UserRepository (Persistence Layer)
-participant Database as Database
-participant Mailer as EmailService
+participant User
+participant API
+participant BusinessLogic as UserService
+participant Database
 
-Interface ->> API: POST /UserRegistration {email, password, name}
-API ->> UserModel: Validate fields
-UserModel ->> UserModel: Normalize email (lower/trim)
+User->>API: POST /users {email, password, name}
+API->>BusinessLogic: validateAndProcess(dto)
 
-alt VALIDATION FAILED
-  UserModel -->> API: Validation error (details)
-  API -->> Interface: 400 Bad Request
-else VALIDATION SUCCESS
-  API ->> UserModel: Create user request
-  UserModel ->> UserRepository: Check uniqueness (email_lower)
-  UserRepository ->> Database: SELECT * FROM users WHERE lower(email)=?
-  Database -->> UserRepository: user|null
+alt invalid input
+  BusinessLogic-->>API: ValidationError
+  API-->>User: 400 Bad Request
+else valid
+  BusinessLogic->>Database: SELECT id FROM users WHERE lower(email)=?
+  Database-->>BusinessLogic: user|null
 
-  alt E-MAIL EXISTS
-    UserRepository -->> UserModel: Duplicate email
-    UserModel -->> API: Conflict
-    API -->> Interface: 409 Conflict
-  else E-MAIL UNIQUE
-    UserRepository -->> UserModel: Unique OK
-    UserModel ->> UserModel: Hash password (argon2/bcrypt)
-    UserModel ->> UserRepository: Save {email_lower, name, password_hash}
-    UserRepository ->> Database: INSERT INTO users (...)
-    Database -->> UserRepository: new user id
+  alt email exists
+    BusinessLogic-->>API: Conflict
+    API-->>User: 409 Conflict
+  else create
+    BusinessLogic->>BusinessLogic: normalize email + hash password
+    BusinessLogic->>Database: INSERT INTO users (...)
+    Database-->>BusinessLogic: new user id
 
-    alt UNIQUE CONSTRAINT VIOLATION (race)
-      UserRepository -->> UserModel: Constraint error (duplicate)
-      UserModel -->> API: Conflict
-      API -->> Interface: 409 Conflict
-    else INSERT OK
-      UserRepository -->> UserModel: User persisted
-
-      opt Email verification enabled
-        UserModel ->> UserRepository: Issue verification token (TTL)
-        UserRepository ->> Database: INSERT verification_token
-        Database -->> UserRepository: token
-        UserModel ->> Mailer: Send verification email (link)
-        Mailer -->> UserModel: enqueued
+    alt UNIQUE constraint violation (race)
+      BusinessLogic-->>API: Conflict
+      API-->>User: 409 Conflict
+    else ok
+      opt Email verification / token
+        BusinessLogic->>BusinessLogic: issue verification token / JWT
       end
-
-      opt Return access token on signup
-        UserModel ->> UserModel: Issue JWT (access)
-      end
-
-      UserModel -->> API: User DTO (id, email, verified=false, maybe token)
-      API -->> Interface: 201 Created
+      BusinessLogic-->>API: user DTO (id, email, verified=false, maybe token)
+      API-->>User: 201 Created
     end
   end
 end
