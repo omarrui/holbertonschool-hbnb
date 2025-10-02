@@ -1,28 +1,316 @@
-# HBnB Evolution – Technical Documentation (Part 1)
+Got it! We can move the **authors section to the bottom** and make sure **all diagrams are fully visible** without collapsing them (no `<details>` for the diagrams). We'll just add **spacing, headings, and horizontal rules** so it’s easier on the eyes. Here’s the revised version:
 
-Cette documentation couvre la première partie du projet **HBnB Evolution**, qui consiste à créer une base technique solide pour l’application. L’objectif est de présenter l’architecture et les interactions entre les différentes couches du système.
+---
 
-## Diagrams
+````markdown
+# HBnB - UML Design Documentation
 
-### 1. High-Level Package Diagram - PackageDiagram
-Ce diagramme montre la structure générale de l’application, organisée en trois couches principales :
-- **Presentation Layer** : services qui gèrent l’interaction avec l’utilisateur.  
-- **Business Logic Layer** : modèles et logique métier (User, Place, Review, Amenity).  
-- **Persistence Layer** : accès aux données et opérations sur la base de données.  
+---
 
-Les flèches indiquent le flux de communication entre les couches, avec le **facade pattern** utilisé pour simplifier les interactions.
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Architecture Overview](#architecture-overview)
+- [High-Level Package Diagram](#high-level-package-diagram)
+- [Business Logic Layer](#business-logic-layer)
+- [Entity Relationships](#entity-relationships)
+- [Business Rules](#business-rules)
+- [Design Decisions](#design-decisions)
+- [Sequence Diagrams](#sequence-diagrams-for-api-calls)
+- [Authors](#authors)
 
-### 2. Sequence Diagram – Review Submission
-Ce diagramme illustre le processus par lequel un utilisateur soumet un avis pour un lieu :
-1. L’utilisateur envoie sa requête via l’API.  
-2. La couche Présentation (ReviewController) transmet la requête à la logique métier (ReviewService).  
-3. La couche Persistence (ReviewRepository) sauvegarde l’avis dans la base de données.  
-4. La confirmation remonte à l’utilisateur.  
+---
 
-Ce diagramme est cohérent avec la structure du package diagram, respectant le flux Présentation → Business Logic → Persistence.
+## Project Overview
+This project contains comprehensive UML documentation for the HBnB (Holberton Airbnb) application. These diagrams serve as architectural blueprints before development begins and ensure consistency across database design and business logic implementation.
 
-### 3. Sequence Diagram – Fetching a List of Places - fetchPlacesSequence
-Ce diagramme montre le processus par lequel un utilisateur récupère la liste des lieux :
-1. L’utilisateur fait une requête via l’API (PlaceController).  
-2. La logique métier (PlaceService) récupère les données depuis la base (PlaceRepository).  
-3. Les résultats sont renvoyés à l’utilisateur.
+---
+
+## Architecture Overview
+The HBnB application follows a layered architecture pattern with clear separation of concerns:
+
+- **Presentation Layer**: User interface and API endpoints  
+- **Business Logic Layer**: Core entities and business rules  
+- **Data Access Layer**: Database operations and persistence  
+
+---
+
+## High-Level Package Diagram
+```mermaid
+classDiagram
+direction TB
+    class PresentationLayer {
+        +UserController
+        +PlaceController
+        +ReviewController
+        +AmenityController
+    }
+
+    class BusinessLogicLayer {
+        +UserClass
+        +PlaceClass
+        +ReviewClass
+        +AmenityClass
+    }
+
+    class PersistenceLayer {
+        +UserData
+        +PlaceData
+        +ReviewData
+        +AmenityData
+    }
+
+    PresentationLayer --> BusinessLogicLayer : Facade Pattern
+    BusinessLogicLayer --> PersistenceLayer : Database Operations
+````
+
+---
+
+## Business Logic Layer
+
+### Overview
+
+The business logic layer contains the core domain entities that represent the fundamental concepts of our rental platform.
+
+---
+
+### Core Entities
+
+#### User (ModelUser)
+
+Represents platform users who can list properties and write reviews.
+
+* **Key Attributes**: Unique identifier, personal information, authentication data
+* **Capabilities**: Create, update, and delete user profiles
+* **Security**: Password is private, admin status controls access levels
+
+#### Place (ModelPlace)
+
+Represents properties and their attributes.
+
+* **Key Attributes**: Title, description, location, price, timestamps
+* **Relationships**: Owned by a User, can have multiple reviews and amenities
+
+#### Review (ModelReview)
+
+Represents user feedback and ratings for places.
+
+* **Key Attributes**: Rating, comment, timestamps
+* **Relationships**: Written by a User for a specific Place
+
+#### Amenity (ModelAmenity)
+
+Represents facilities and services available at places.
+
+* **Key Attributes**: Name, description, management timestamps
+* **Relationship**: Many-to-many with Places via ModelPlaceAmenity
+
+#### PlaceAmenity (ModelPlaceAmenity)
+
+Junction table managing the many-to-many relationship between Places and Amenities.
+
+---
+
+### Class Diagram
+
+```mermaid
+classDiagram
+direction LR
+    class ModelUser {
+        +UUID4 id
+        +str first_name
+        +str last_name
+        +str email
+        -str password
+        -bool is_admin
+        +datetime created_at
+        +datetime updated_at
+        +create_user()
+        +update_user()
+        +delete_user()
+    }
+
+    class ModelPlace {
+        +UUID4 id
+        +UUID4 user_id
+        +str title
+        +str description
+        +float price
+        +float latitude
+        +float longitude
+        +datetime created_at
+        +datetime updated_at
+        +create_place()
+        +update_place()
+        +delete_place()
+        +list_reviews()
+        +list_amenities()
+    }
+
+    class ModelReview {
+        +UUID4 id
+        +UUID4 user_id
+        +UUID4 place_id
+        +int rating
+        +str comment
+        +datetime created_at
+        +datetime updated_at
+        +create_review()
+        +update_review()
+        +delete_review()
+    }
+
+    class ModelAmenity {
+        +UUID4 id
+        +str name
+        +str description
+        +datetime created_at
+        +datetime updated_at
+        +create_amenity()
+        +update_amenity()
+        +delete_amenity()
+    }
+
+    class ModelPlaceAmenity {
+        +UUID4 id
+        +UUID4 place_id
+        +UUID4 amenity_id
+    }
+
+    ModelUser "1" o-- "0..*" ModelPlace : owns
+    ModelPlace "1" --> "0..*" ModelReview : has
+    ModelPlace "1" --> "0..*" ModelPlaceAmenity : contains
+    ModelPlaceAmenity "0..*" --> "1" ModelAmenity : associates
+```
+
+---
+
+## Entity Relationships
+
+* **User -> Place**: One-to-Many (1:0..*)
+* **Place -> Review**: One-to-Many (1:0..*)
+* **Place <-> Amenity**: Many-to-Many (via PlaceAmenity)
+
+---
+
+## Business Rules
+
+* Only authenticated users can create places or reviews
+* Users cannot review their own properties
+* Referential integrity must be maintained for all foreign keys
+* Amenities can be shared across multiple places
+
+---
+
+## Design Decisions
+
+* **UUID4** for all primary keys
+* Automatic timestamps for creation and update
+* Integer coordinates for latitude/longitude
+* Integer rating scale (1–5)
+* Future considerations: soft delete, audit trails, rating validation
+
+---
+
+## Sequence Diagrams for API Calls
+
+### User Registration
+
+```mermaid
+sequenceDiagram
+participant User
+participant API
+participant UserService
+participant UserRepository
+participant Database
+
+User->>API: POST /users {email, password, name}
+API->>UserService: validateAndProcess(dto)
+alt invalid input
+  UserService-->>API: ValidationError
+  API-->>User: 400 Bad Request
+else valid
+  UserService->>Database: check if email exists
+  alt email exists
+    UserService-->>API: Conflict
+    API-->>User: 409 Conflict
+  else create
+    UserService->>Database: INSERT new user
+    Database-->>UserService: new user id
+    UserService-->>API: user DTO
+    API-->>User: 201 Created
+  end
+end
+```
+
+### Place Creation
+
+```mermaid
+sequenceDiagram
+participant User
+participant API
+participant Auth
+participant PlaceService
+participant Database
+
+User->>API: POST /places {...} + Bearer
+API->>Auth: verify(jwt)
+alt unauthorized
+  Auth-->>API: invalid
+  API-->>User: 401 Unauthorized
+else authorized
+  Auth-->>API: userId
+  API->>PlaceService: createPlace(userId, dto)
+  alt invalid input
+    PlaceService-->>API: ValidationError
+    API-->>User: 400 Bad Request
+  else valid
+    PlaceService->>Database: INSERT INTO places
+    Database-->>PlaceService: placeId
+    PlaceService-->>API: PlaceDTO
+    API-->>User: 201 Created
+  end
+end
+```
+
+### Review Submission
+
+```mermaid
+sequenceDiagram
+participant User
+participant ReviewController
+participant ReviewService
+participant ReviewRepository
+
+User->>ReviewController: Submit Review (POST /reviews)
+ReviewController->>ReviewService: Validate and process review
+ReviewService->>ReviewRepository: Save review to database
+ReviewRepository-->>ReviewService: Confirm save
+ReviewService-->>ReviewController: Return processed review
+ReviewController-->>User: Return success response
+```
+
+### Fetching a List of Places
+
+```mermaid
+sequenceDiagram
+participant User
+participant PlaceController
+participant PlaceService
+participant PlaceRepository
+
+User->>PlaceController: Request list of places (GET /places)
+PlaceController->>PlaceService: Fetch places
+PlaceService->>PlaceRepository: Retrieve places from database
+PlaceRepository-->>PlaceService: Return places
+PlaceService-->>PlaceController: Send places
+PlaceController-->>User: Return places list
+```
+
+---
+
+## Authors
+
+Omar, Warren, Wassef
+
+```
+
