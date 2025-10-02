@@ -174,9 +174,10 @@ direction LR
     }
 
     ModelUser "1" o-- "0..*" ModelPlace : owns
+    ModelUser "1" o-- "0..*" ModelReview : writes
     ModelPlace "1" --> "0..*" ModelReview : has
     ModelPlace "1" --> "0..*" ModelPlaceAmenity : contains
-    ModelPlaceAmenity "0..*" --> "1" ModelAmenity : associates
+    ModelAmenity "1" --> "0..*" ModelPlaceAmenity : linked_to
 ```
 
 ---

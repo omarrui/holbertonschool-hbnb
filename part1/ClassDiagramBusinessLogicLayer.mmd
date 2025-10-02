@@ -12,8 +12,8 @@ classDiagram
         +str first_name
         +str last_name
         +str email
-        +str password
-        +bool is_admin
+        -str password
+        -bool is_admin
         +datetime created_at
         +datetime updated_at
         +create_user()
@@ -73,6 +73,7 @@ classDiagram
     %% Relationships
     %% ===============================
     ModelUser "1" o-- "0..*" ModelPlace : owns >
+    ModelUser "1" o-- "0..*" ModelReview : writes > >
     ModelPlace "1" --> "0..*" ModelReview : has >
     ModelPlace "1" --> "0..*" ModelPlaceAmenity : links >
-    ModelPlaceAmenity "0..*" --> "1" ModelAmenity : associates with >
+    ModelPlaceAmenity "0..*" --> "1" ModelAmenity : associates with >    ModelPlaceAmenity "0..*" --> "1" ModelAmenity : associates with >
