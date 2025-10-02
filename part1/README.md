@@ -1,8 +1,3 @@
-Got it! We can move the **authors section to the bottom** and make sure **all diagrams are fully visible** without collapsing them (no `<details>` for the diagrams). We'll just add **spacing, headings, and horizontal rules** so it’s easier on the eyes. Here’s the revised version:
-
----
-
-````markdown
 # HBnB - UML Design Documentation
 
 ---
@@ -37,26 +32,28 @@ The HBnB application follows a layered architecture pattern with clear separatio
 ## High-Level Package Diagram
 ```mermaid
 classDiagram
-direction TB
     class PresentationLayer {
-        +UserController
-        +PlaceController
-        +ReviewController
-        +AmenityController
+        <<package>>
+        UserController
+        PlaceController
+        ReviewController
+        AmenityController
     }
 
     class BusinessLogicLayer {
-        +UserClass
-        +PlaceClass
-        +ReviewClass
-        +AmenityClass
+        <<package>>
+        UserClass
+        PlaceClass
+        ReviewClass
+        AmenityClass
     }
 
     class PersistenceLayer {
-        +UserData
-        +PlaceData
-        +ReviewData
-        +AmenityData
+        <<package>>
+        UserData
+        PlaceData
+        ReviewData
+        AmenityData
     }
 
     PresentationLayer --> BusinessLogicLayer : Facade Pattern
