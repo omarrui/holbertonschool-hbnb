@@ -76,5 +76,7 @@ class Place(BaseModel):
             'latitude': self.latitude,
             'longitude': self.longitude,
             'owner_id': getattr(self, 'owner', None),
-            'amenities': [a.id if hasattr(a, 'id') else a for a in self.amenities]
+            'amenities': [a.id if hasattr(a, 'id') else a for a in self.amenities],
+            'created_at': getattr(self, 'created_at').isoformat() if hasattr(self, 'created_at') else None,
+            'updated_at': getattr(self, 'updated_at').isoformat() if hasattr(self, 'updated_at') else None
         }
