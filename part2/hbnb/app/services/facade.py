@@ -1,11 +1,7 @@
 from app.persistence.repository import InMemoryRepository
-<<<<<<< HEAD
 from app.models.place import Place
 from app.models.review import Review
-
-=======
 from app.models.user import User
->>>>>>> origin/main
 
 class HBnBFacade:
     def __init__(self):
@@ -182,7 +178,6 @@ class HBnBFacade:
         return review
 
     def delete_review(self, review_id):
-<<<<<<< HEAD
         review = self.review_repo.get(review_id)
         if not review:
             return False
@@ -195,11 +190,7 @@ class HBnBFacade:
         # Delete from repo
         self.review_repo.delete(review_id)
         return True
-=======
-        # Placeholder for logic to delete a review
-        pass
 
-    
     def create_amenity(self, amenity_data):
         # Placeholder for logic to create an amenity
         pass
@@ -215,4 +206,3 @@ class HBnBFacade:
     def update_amenity(self, amenity_id, amenity_data):
         # Placeholder for logic to update an amenity
         pass
->>>>>>> origin/main
