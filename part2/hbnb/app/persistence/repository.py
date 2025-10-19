@@ -1,18 +1,3 @@
-class InMemoryRepository:
-    def __init__(self):
-        self._data = {}
-
-    def add(self, obj):
-        self._data[obj.id] = obj
-
-    def get(self, obj_id):
-        return self._data.get(obj_id)
-
-    def list(self):
-        return list(self._data.values())
-
-    def delete(self, obj_id):
-        return self._data.pop(obj_id, None)
 from abc import ABC, abstractmethod
 
 class Repository(ABC):
@@ -65,3 +50,19 @@ class InMemoryRepository(Repository):
 
     def get_by_attribute(self, attr_name, attr_value):
         return next((obj for obj in self._storage.values() if getattr(obj, attr_name) == attr_value), None)
+    
+    class InMemoryRepository:
+        def __init__(self):
+            self._data = {}
+
+    def add(self, obj):
+        self._data[obj.id] = obj
+
+    def get(self, obj_id):
+        return self._data.get(obj_id)
+
+    def list(self):
+        return list(self._data.values())
+
+    def delete(self, obj_id):
+        return self._data.pop(obj_id, None)
