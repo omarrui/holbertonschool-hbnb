@@ -38,7 +38,11 @@ class PlaceList(Resource):
         try:
             new_place = facade.create_place(data)
         except ValueError as e:
-            return {'error': str(e)}, 400
+            msg = str(e)
+            # If missing owner/amenity -> treat as 404
+            if 'not found' in msg.lower():
+                return {'error': msg}, 404
+            return {'error': msg}, 400
 
         return new_place.to_dict(), 201
 
@@ -91,9 +95,29 @@ class PlaceResource(Resource):
         try:
             updated = facade.update_place(place_id, data)
         except ValueError as e:
-            return {'error': str(e)}, 400
+            msg = str(e)
+            if 'not found' in msg.lower():
+                return {'error': msg}, 404
+            return {'error': msg}, 400
 
         if not updated:
             return {'error': 'Place not found'}, 404
 
-        return {'message': 'Place updated successfully'}, 200
+        out = updated.to_dict()
+        # include owner, amenities, reviews as in GET
+        res = facade.get_place(place_id)
+        owner = res.get('owner') if res else None
+        amenities = res.get('amenities', []) if res else []
+        reviews = res.get('reviews', []) if res else []
+
+        owner_data = None
+        if owner:
+            owner_data = {'id': owner.id, 'first_name': getattr(owner, 'first_name', None), 'last_name': getattr(owner, 'last_name', None), 'email': getattr(owner, 'email', None)}
+
+        amenities_data = [{'id': a.id, 'name': getattr(a, 'name', None)} for a in amenities]
+        reviews_data = [{'id': r.id, 'user_id': getattr(r, 'user_id', None), 'text': getattr(r, 'text', None)} for r in reviews]
+
+        out['owner'] = owner_data
+        out['amenities'] = amenities_data
+        out['reviews'] = reviews_data
+        return out, 200
