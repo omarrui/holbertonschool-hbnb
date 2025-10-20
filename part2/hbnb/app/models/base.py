@@ -11,7 +11,7 @@ class BaseModel:
         """Update the updated_at timestamp whenever the object is modified"""
         self.updated_at = datetime.now()
 
-    def update(self, data):
+    def update(self, data: dict):
         """Update the attributes of the object based on the provided dictionary"""
         for key, value in data.items():
             if hasattr(self, key):

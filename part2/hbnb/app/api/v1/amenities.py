@@ -10,6 +10,8 @@ amenity_model = api.model('Amenity', {
 def serialize_amenity(a):
     return {"id": a.id, "name": a.name}
 
+MAX_NAME_LEN = 50
+
 @api.route('/')
 class AmenityList(Resource):
     @api.expect(amenity_model, validate=True)
@@ -18,11 +20,18 @@ class AmenityList(Resource):
     def post(self):
         """Register a new amenity"""
         data = api.payload or {}
-        name = data.get("name", "").strip()
-        if not name:
-            return {"error": "Invalid input data"}, 400
+        name = (data.get("name") or "").strip()
 
-        amenity = facade.create_amenity({"name": name})
+        if not name:
+            return {"error": "name is required"}, 400
+        if len(name) > MAX_NAME_LEN:
+            return {"error": f"name must be <= {MAX_NAME_LEN} characters"}, 400
+
+        try:
+            amenity = facade.create_amenity({"name": name})
+        except ValueError as e:
+            return {"error": str(e)}, 400
+
         return serialize_amenity(amenity), 201
 
     @api.response(200, 'List of amenities retrieved successfully')
@@ -30,6 +39,7 @@ class AmenityList(Resource):
         """Retrieve a list of all amenities"""
         amenities = facade.get_all_amenities()
         return [serialize_amenity(a) for a in amenities], 200
+
 
 @api.route('/<amenity_id>')
 class AmenityResource(Resource):
@@ -51,9 +61,16 @@ class AmenityResource(Resource):
             return {"error": "Amenity not found"}, 404
 
         data = api.payload or {}
-        name = data.get("name", "").strip()
-        if not name:
-            return {"error": "Invalid input data"}, 400
+        name = (data.get("name") or "").strip()
 
-        updated = facade.update_amenity(amenity_id, {"name": name})
+        if not name:
+            return {"error": "name is required"}, 400
+        if len(name) > MAX_NAME_LEN:
+            return {"error": f"name must be <= {MAX_NAME_LEN} characters"}, 400
+
+        try:
+            updated = facade.update_amenity(amenity_id, {"name": name})
+        except ValueError as e:
+            return {"error": str(e)}, 400
+
         return serialize_amenity(updated), 200
