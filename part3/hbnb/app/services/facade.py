@@ -10,18 +10,19 @@ class HBnBFacade:
     """
 
     def __init__(self):
+        self.user_repo = SQLAlchemyRepository(User)
         self.user_repo = InMemoryRepository()
         self.amenity_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
         self.review_repo = InMemoryRepository()
 
 
-    def create_user(self, data: dict):
-        user = User(**data)
+    def create_user(self, user_data):
+        user = User(**user_data)
         self.user_repo.add(user)
         return user
 
-    def get_user(self, user_id: str):
+    def get_user(self, user_id):
         return self.user_repo.get(user_id)
 
     def get_user_by_email(self, email: str):
