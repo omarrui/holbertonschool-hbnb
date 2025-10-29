@@ -1,99 +1,116 @@
-from app.models.base import BaseModel
+from app.models.user import User
+from app.models.place import Place
+from app.models.review import Review
+from app.models.amenity import Amenity
+from app.persistence.sqlalchemy_repository import SQLAlchemyRepository
 
-class Place(BaseModel):
-    """Represents a rental property in the application."""
 
-    def __init__(self, title, description, price, latitude, longitude, owner):
-        super().__init__()
+class HBnBFacade:
+    """
+    Facade for managing Users, Places, Reviews, and Amenities using SQLAlchemy repositories.
+    Relationships are not implemented yet (Task 8).
+    """
 
-        if not owner:
-            raise ValueError("Invalid owner")
+    def __init__(self):
+        # SQLAlchemy repositories for all entities
+        self.user_repo = SQLAlchemyRepository(User)
+        self.place_repo = SQLAlchemyRepository(Place)
+        self.review_repo = SQLAlchemyRepository(Review)
+        self.amenity_repo = SQLAlchemyRepository(Amenity)
 
-        self.title = title
-        self.description = description
-        self.price = price
-        self.latitude = latitude
-        self.longitude = longitude
-        self.owner = owner
-        self.reviews = []
-        self.amenities = []
+    # ----------------- User Methods ----------------- #
+    def create_user(self, data: dict):
+        user = User(**data)
+        if "password" in data:
+            user.hash_password(data["password"])
+        self.user_repo.add(user)
+        return user
 
-    @property
-    def title(self):
-        return self._title
+    def get_user(self, user_id: str):
+        return self.user_repo.get(user_id)
 
-    @title.setter
-    def title(self, value):
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError("Title cannot be empty")
-        if len(value) > 100:
-            raise ValueError("Title must be 100 characters max.")
-        self._title = value
+    def get_user_by_email(self, email: str):
+        return self.user_repo.model.query.filter_by(email=email).first()
 
-    @property
-    def price(self):
-        return self._price
+    def get_all_users(self):
+        return self.user_repo.get_all()
 
-    @price.setter
-    def price(self, value):
-        if value is None:
-            raise ValueError("Price cannot be None")
-        try:
-            val = float(value)
-        except (TypeError, ValueError):
-            raise ValueError("Price must be a number")
-        if val < 0:
-            raise ValueError("Price cannot be negative")
-        self._price = val
+    def update_user(self, user_id: str, data: dict):
+        user = self.user_repo.get(user_id)
+        if not user:
+            return None
+        user.update(data)
+        self.user_repo.update(user_id, data)
+        return user
 
-    @property
-    def latitude(self):
-        return self._latitude
+    def delete_user(self, user_id: str):
+        return self.user_repo.delete(user_id)
 
-    @latitude.setter
-    def latitude(self, value):
-        if value is None:
-            raise ValueError("Latitude cannot be None")
-        try:
-            val = float(value)
-        except (TypeError, ValueError):
-            raise ValueError("Latitude must be a valid number")
-        if not (-90 <= val <= 90):
-            raise ValueError("Latitude must be between -90 and 90")
-        self._latitude = val
+    # ----------------- Place Methods ----------------- #
+    def create_place(self, data: dict):
+        place = Place(**data)
+        self.place_repo.add(place)
+        return place
 
-    @property
-    def longitude(self):
-        return self._longitude
+    def get_place(self, place_id: str):
+        return self.place_repo.get(place_id)
 
-    @longitude.setter
-    def longitude(self, value):
-        if value is None:
-            raise ValueError("Longitude cannot be None")
-        try:
-            val = float(value)
-        except (TypeError, ValueError):
-            raise ValueError("Longitude must be a valid number")
-        if not (-180 <= val <= 180):
-            raise ValueError("Longitude must be between -180 and 180")
-        self._longitude = val
+    def get_all_places(self):
+        return self.place_repo.get_all()
 
-    def add_review(self, review):
-        self.reviews.append(review)
+    def update_place(self, place_id: str, data: dict):
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+        place.update(data)
+        self.place_repo.update(place_id, data)
+        return place
 
-    def add_amenity(self, amenity):
-        self.amenities.append(amenity)
+    def delete_place(self, place_id: str):
+        return self.place_repo.delete(place_id)
 
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "title": self.title,
-            "description": self.description,
-            "price": self.price,
-            "latitude": self.latitude,
-            "longitude": self.longitude,
-            "owner_id": getattr(self, "owner", None),
-            "amenities": [a.id if hasattr(a, "id") else a for a in self.amenities],
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
-        }
+    # ----------------- Review Methods ----------------- #
+    def create_review(self, data: dict):
+        review = Review(**data)
+        self.review_repo.add(review)
+        return review
+
+    def get_review(self, review_id: str):
+        return self.review_repo.get(review_id)
+
+    def get_all_reviews(self):
+        return self.review_repo.get_all()
+
+    def update_review(self, review_id: str, data: dict):
+        review = self.review_repo.get(review_id)
+        if not review:
+            return None
+        review.update(data)
+        self.review_repo.update(review_id, data)
+        return review
+
+    def delete_review(self, review_id: str):
+        return self.review_repo.delete(review_id)
+
+    # ----------------- Amenity Methods ----------------- #
+    def create_amenity(self, data: dict):
+        amenity = Amenity(**data)
+        self.amenity_repo.add(amenity)
+        return amenity
+
+    def get_amenity(self, amenity_id: str):
+        return self.amenity_repo.get(amenity_id)
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
+
+    def update_amenity(self, amenity_id: str, data: dict):
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            return None
+        amenity.update(data)
+        self.amenity_repo.update(amenity_id, data)
+        return amenity
+
+    def delete_amenity(self, amenity_id: str):
+        return self.amenity_repo.delete(amenity_id)
