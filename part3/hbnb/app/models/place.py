@@ -1,116 +1,132 @@
-from app.models.user import User
-from app.models.place import Place
-from app.models.review import Review
-from app.models.amenity import Amenity
-from app.persistence.sqlalchemy_repository import SQLAlchemyRepository
+from app.models.base_model import BaseModel
+from app import db, bcrypt
 
+# Association table for Place-Amenity many-to-many relationship
+place_amenity = db.Table('place_amenity',
+    db.Column('place_id', db.String(60), db.ForeignKey('places.id'), primary_key=True),
+    db.Column('amenity_id', db.String(60), db.ForeignKey('amenities.id'), primary_key=True)
+)
 
-class HBnBFacade:
-    """
-    Facade for managing Users, Places, Reviews, and Amenities using SQLAlchemy repositories.
-    Relationships are not implemented yet (Task 8).
-    """
+class User(BaseModel):
+    """Represents a user in the HolbertonBnB application."""
 
-    def __init__(self):
-        # SQLAlchemy repositories for all entities
-        self.user_repo = SQLAlchemyRepository(User)
-        self.place_repo = SQLAlchemyRepository(Place)
-        self.review_repo = SQLAlchemyRepository(Review)
-        self.amenity_repo = SQLAlchemyRepository(Amenity)
+    __tablename__ = 'users'
 
-    # ----------------- User Methods ----------------- #
-    def create_user(self, data: dict):
-        user = User(**data)
-        if "password" in data:
-            user.hash_password(data["password"])
-        self.user_repo.add(user)
-        return user
+    # ----------------- Columns ----------------- #
+    first_name = db.Column(db.String(50), nullable=False)
+    last_name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(120), nullable=False, unique=True)
+    password = db.Column(db.String(128), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)
 
-    def get_user(self, user_id: str):
-        return self.user_repo.get(user_id)
+    # ----------------- Relationships ----------------- #
+    places = db.relationship('Place', backref='owner', lazy=True)
+    reviews = db.relationship('Review', backref='user', lazy=True)
 
-    def get_user_by_email(self, email: str):
-        return self.user_repo.model.query.filter_by(email=email).first()
+    # ----------------- Initialization ----------------- #
+    def __init__(self, first_name, last_name, email, is_admin=False):
+        super().__init__()
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+        self.is_admin = bool(is_admin)
 
-    def get_all_users(self):
-        return self.user_repo.get_all()
+    # ----------------- Password Methods ----------------- #
+    def hash_password(self, password):
+        """Hash the password for secure storage."""
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
 
-    def update_user(self, user_id: str, data: dict):
-        user = self.user_repo.get(user_id)
-        if not user:
-            return None
-        user.update(data)
-        self.user_repo.update(user_id, data)
-        return user
+    def verify_password(self, password):
+        """Verify the hashed password."""
+        return bcrypt.check_password_hash(self.password, password)
 
-    def delete_user(self, user_id: str):
-        return self.user_repo.delete(user_id)
+    # ----------------- Property Validation ----------------- #
+    @property
+    def first_name(self):
+        return self._first_name
 
-    # ----------------- Place Methods ----------------- #
-    def create_place(self, data: dict):
-        place = Place(**data)
-        self.place_repo.add(place)
-        return place
+    @first_name.setter
+    def first_name(self, value):
+        value = (value or "").strip()
+        if not (1 <= len(value) <= 50):
+            raise ValueError("First name must be 1-50 characters long")
+        self._first_name = value
 
-    def get_place(self, place_id: str):
-        return self.place_repo.get(place_id)
+    @property
+    def last_name(self):
+        return self._last_name
 
-    def get_all_places(self):
-        return self.place_repo.get_all()
+    @last_name.setter
+    def last_name(self, value):
+        value = (value or "").strip()
+        if not (1 <= len(value) <= 50):
+            raise ValueError("Last name must be 1-50 characters long")
+        self._last_name = value
 
-    def update_place(self, place_id: str, data: dict):
-        place = self.place_repo.get(place_id)
-        if not place:
-            return None
-        place.update(data)
-        self.place_repo.update(place_id, data)
-        return place
+    @property
+    def email(self):
+        return self._email
 
-    def delete_place(self, place_id: str):
-        return self.place_repo.delete(place_id)
+    @email.setter
+    def email(self, value):
+        value = (value or "").strip().lower()
+        if "@" not in value or "." not in value or " " in value:
+            raise ValueError("Invalid email format")
+        self._email = value
 
-    # ----------------- Review Methods ----------------- #
-    def create_review(self, data: dict):
-        review = Review(**data)
-        self.review_repo.add(review)
-        return review
+    # ----------------- Serialization ----------------- #
+    def to_dict(self):
+        """Return dictionary representation of the user."""
+        return {
+            "id": self.id,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
+            "email": self.email,
+            "is_admin": self.is_admin,
+            "places": [place.id for place in self.places],
+            "reviews": [review.id for review in self.reviews],
+        }
 
-    def get_review(self, review_id: str):
-        return self.review_repo.get(review_id)
+class Place(BaseModel):
+    """Represents a place in the HolbertonBnB application."""
 
-    def get_all_reviews(self):
-        return self.review_repo.get_all()
+    __tablename__ = 'places'
 
-    def update_review(self, review_id: str, data: dict):
-        review = self.review_repo.get(review_id)
-        if not review:
-            return None
-        review.update(data)
-        self.review_repo.update(review_id, data)
-        return review
+    # ----------------- Columns ----------------- #
+    title = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    latitude = db.Column(db.Float, nullable=True)
+    longitude = db.Column(db.Float, nullable=True)
+    owner_id = db.Column(db.String(60), db.ForeignKey('users.id'), nullable=False)
 
-    def delete_review(self, review_id: str):
-        return self.review_repo.delete(review_id)
+    # ----------------- Relationships ----------------- #
+    reviews = db.relationship('Review', backref='place', lazy=True, cascade='all, delete-orphan')
+    amenities = db.relationship('Amenity', secondary=place_amenity, back_populates='places')
 
-    # ----------------- Amenity Methods ----------------- #
-    def create_amenity(self, data: dict):
-        amenity = Amenity(**data)
-        self.amenity_repo.add(amenity)
-        return amenity
+    # ----------------- Initialization ----------------- #
+    def __init__(self, title, description, price, latitude, longitude, owner):
+        super().__init__()
+        self.title = title
+        self.description = description
+        self.price = price
+        self.latitude = latitude
+        self.longitude = longitude
+        self.owner_id = owner
 
-    def get_amenity(self, amenity_id: str):
-        return self.amenity_repo.get(amenity_id)
-
-    def get_all_amenities(self):
-        return self.amenity_repo.get_all()
-
-    def update_amenity(self, amenity_id: str, data: dict):
-        amenity = self.amenity_repo.get(amenity_id)
-        if not amenity:
-            return None
-        amenity.update(data)
-        self.amenity_repo.update(amenity_id, data)
-        return amenity
-
-    def delete_amenity(self, amenity_id: str):
-        return self.amenity_repo.delete(amenity_id)
+    # ----------------- Serialization ----------------- #
+    def to_dict(self):
+        """Return dictionary representation of the place."""
+        return {
+            "id": self.id,
+            "title": self.title,
+            "description": self.description,
+            "price": self.price,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "owner_id": self.owner_id,
+            "amenities": [amenity.id for amenity in self.amenities],
+            "reviews": [review.id for review in self.reviews],
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
+        }
