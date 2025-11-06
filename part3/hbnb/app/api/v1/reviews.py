@@ -35,8 +35,6 @@ class ReviewList(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
-<<<<<<< HEAD
-=======
         """Register a new review (authenticated only). Prevent self-review and duplicates."""
         identity = get_jwt_identity()
         if isinstance(identity, dict):
@@ -46,7 +44,6 @@ class ReviewList(Resource):
             current_user = identity
             current_user_obj = facade.get_user(current_user)
             is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
->>>>>>> Dev-holby_w
         data = api.payload or {}
 
         place_id = data.get('place_id')
@@ -100,8 +97,6 @@ class ReviewResource(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def put(self, review_id):
-<<<<<<< HEAD
-=======
         """Update a review's information (only author can update)."""
         identity = get_jwt_identity()
         if isinstance(identity, dict):
@@ -111,7 +106,6 @@ class ReviewResource(Resource):
             current_user = identity
             current_user_obj = facade.get_user(current_user)
             is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
->>>>>>> Dev-holby_w
         data = api.payload or {}
 
         review = facade.get_review(review_id)
@@ -136,8 +130,6 @@ class ReviewResource(Resource):
     @api.response(404, 'Review not found')
     @jwt_required()
     def delete(self, review_id):
-<<<<<<< HEAD
-=======
         """Delete a review (only author can delete)."""
         identity = get_jwt_identity()
         if isinstance(identity, dict):
@@ -154,7 +146,6 @@ class ReviewResource(Resource):
         if getattr(review, 'user_id', None) != current_user and not is_admin:
             return {'error': 'Unauthorized action'}, 403
 
->>>>>>> Dev-holby_w
         ok = facade.delete_review(review_id)
         if not ok:
             return {'error': 'Review not found'}, 404

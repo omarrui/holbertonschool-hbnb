@@ -19,10 +19,6 @@ class UserList(Resource):
     @api.response(400, 'Invalid input data')
     @jwt_required()
     def post(self):
-<<<<<<< HEAD
-        """Register a new user"""
-        user_data = api.payload or {}
-=======
         """Register a new user (admin only)"""
         identity = get_jwt_identity()
         if isinstance(identity, dict):
@@ -34,7 +30,6 @@ class UserList(Resource):
             is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
         if not is_admin:
             return {'error': 'Admin privileges required'}, 403
->>>>>>> Dev-holby_w
 
         user_data = api.payload or {}
 
