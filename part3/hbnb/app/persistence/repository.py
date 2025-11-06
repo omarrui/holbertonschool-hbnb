@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
+from app import db
 
 
 class Repository(ABC):
@@ -77,3 +78,40 @@ class InMemoryRepository(Repository):
             if getattr(obj, attr_name, None) == attr_value:
                 return obj
         return None
+
+
+class SQLAlchemyRepository(Repository):
+    """Repository implementation using SQLAlchemy ORM.
+    """
+
+    def __init__(self, model):
+        self.model = model
+
+    def add(self, obj: Any) -> None:
+        db.session.add(obj)
+        db.session.commit()
+
+    def get(self, obj_id: str) -> Optional[Any]:
+        return self.model.query.get(obj_id)
+
+    def get_all(self) -> List[Any]:
+        return self.model.query.all()
+
+    def update(self, obj_id: str, data: Dict[str, Any]) -> Optional[Any]:
+        obj = self.get(obj_id)
+        if not obj:
+            return None
+        for key, value in data.items():
+            if hasattr(obj, key):
+                setattr(obj, key, value)
+        db.session.commit()
+        return obj
+
+    def delete(self, obj_id: str) -> None:
+        obj = self.get(obj_id)
+        if obj:
+            db.session.delete(obj)
+            db.session.commit()
+
+    def get_by_attribute(self, attr_name: str, attr_value: Any) -> Optional[Any]:
+        return self.model.query.filter_by(**{attr_name: attr_value}).first()

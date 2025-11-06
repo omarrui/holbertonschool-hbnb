@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace("places", description="Place operations")
@@ -40,9 +41,22 @@ class PlaceList(Resource):
     @api.response(201, "Place successfully created")
     @api.response(400, "Invalid input data")
     @api.response(404, "Owner or amenity not found")
+    @jwt_required()
     def post(self):
-        """Create a new place"""
+        """Create a new place (authenticated users only). Owner is set to the current user."""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+
         data = api.payload or {}
+
+        if not is_admin:
+            data['owner_id'] = current_user
         try:
             place = facade.create_place(data)
         except ValueError as e:
@@ -77,9 +91,30 @@ class PlaceResource(Resource):
     @api.response(200, "Place updated successfully")
     @api.response(404, "Place or owner not found")
     @api.response(400, "Invalid input data")
+    @jwt_required()
     def put(self, place_id):
-        """Update an existing place"""
+        """Update an existing place (only owner can update)."""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+
+        res = facade.get_place(place_id)
+        if not res:
+            return {"error": "Place not found"}, 404
+        place = res["place"]
+
+        if not is_admin and getattr(place, "owner", None) != current_user:
+            return {"error": "Unauthorized action"}, 403
+
         data = api.payload or {}
+
+        if not is_admin and "owner_id" in data:
+            return {"error": "You cannot change owner_id"}, 400
         try:
             updated = facade.update_place(place_id, data)
         except ValueError as e:

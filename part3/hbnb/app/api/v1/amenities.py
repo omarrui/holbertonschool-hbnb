@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('amenities', description='Amenity operations')
@@ -17,8 +18,20 @@ class AmenityList(Resource):
     @api.expect(amenity_model, validate=True)
     @api.response(201, 'Amenity successfully created')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def post(self):
-        """Register a new amenity"""
+        """Register a new amenity (admin only)"""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+        if not is_admin:
+            return {'error': 'Admin privileges required'}, 403
+
         data = api.payload or {}
         name = (data.get("name") or "").strip()
 
@@ -55,7 +68,20 @@ class AmenityResource(Resource):
     @api.response(200, 'Amenity updated successfully')
     @api.response(404, 'Amenity not found')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, amenity_id):
+        """Update an amenity (admin only)"""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+        if not is_admin:
+            return {'error': 'Admin privileges required'}, 403
+
         amenity = facade.get_amenity(amenity_id)
         if not amenity:
             return {"error": "Amenity not found"}, 404

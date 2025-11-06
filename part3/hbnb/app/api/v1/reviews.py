@@ -1,4 +1,5 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
 
 api = Namespace('reviews', description='Review operations')
@@ -29,9 +30,40 @@ class ReviewList(Resource):
     @api.expect(review_in_model, validate=True)
     @api.response(201, 'Review successfully created')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def post(self):
-        """Register a new review."""
+        """Register a new review (authenticated only). Prevent self-review and duplicates."""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
         data = api.payload or {}
+
+        place_id = data.get('place_id')
+        if not place_id:
+            return {'error': 'place_id is required'}, 400
+
+        place_res = facade.get_place(place_id)
+        if not place_res:
+            return {'error': 'Place not found'}, 404
+
+        place = place_res.get('place')
+        # Prevent users from reviewing their own place (admins can bypass)
+        if not is_admin and getattr(place, 'owner', None) == current_user:
+            return {'error': 'You cannot review your own place'}, 400
+
+        # Prevent duplicate reviews by same user on same place (admins can bypass)
+        if not is_admin:
+            reviews = facade.get_reviews_by_place(place_id) or []
+            for r in reviews:
+                if getattr(r, 'user_id', None) == current_user:
+                    return {'error': 'You have already reviewed this place'}, 400
+
+        data['user_id'] = current_user
         try:
             new_review = facade.create_review(data)
         except ValueError as e:
@@ -61,13 +93,25 @@ class ReviewResource(Resource):
     @api.response(200, 'Review updated successfully')
     @api.response(404, 'Review not found')
     @api.response(400, 'Invalid input data')
+    @jwt_required()
     def put(self, review_id):
-        """Update a review's information."""
+        """Update a review's information (only author can update)."""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
         data = api.payload or {}
 
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404
+
+        if getattr(review, 'user_id', None) != current_user and not is_admin:
+            return {'error': 'Unauthorized action'}, 403
 
         try:
             updated = facade.update_review(review_id, data)
@@ -81,8 +125,24 @@ class ReviewResource(Resource):
 
     @api.response(200, 'Review deleted successfully')
     @api.response(404, 'Review not found')
+    @jwt_required()
     def delete(self, review_id):
-        """Delete a review."""
+        """Delete a review (only author can delete)."""
+        identity = get_jwt_identity()
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            current_user_obj = facade.get_user(current_user)
+            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+        review = facade.get_review(review_id)
+        if not review:
+            return {'error': 'Review not found'}, 404
+
+        if getattr(review, 'user_id', None) != current_user and not is_admin:
+            return {'error': 'Unauthorized action'}, 403
+
         ok = facade.delete_review(review_id)
         if not ok:
             return {'error': 'Review not found'}, 404
