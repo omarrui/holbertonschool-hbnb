@@ -6,7 +6,8 @@ api = Namespace('users', description='User operations')
 user_model = api.model('User', {
     'first_name': fields.String(required=True, description='First name of the user'),
     'last_name': fields.String(required=True, description='Last name of the user'),
-    'email': fields.String(required=True, description='Email of the user')
+    'email': fields.String(required=True, description='Email of the user'),
+    'password': fields.String(required=True, description='User password')
 })
 
 @api.route('/')
@@ -17,7 +18,7 @@ class UserList(Resource):
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new user"""
-        user_data = api.payload
+        user_data = api.payload or {}
 
         existing_user = facade.get_user_by_email(user_data['email'])
         if existing_user:
