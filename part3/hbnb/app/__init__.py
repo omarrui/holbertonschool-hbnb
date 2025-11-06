@@ -1,4 +1,6 @@
 from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_bcrypt import Bcrypt
 from flask_restx import Api
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import JWTManager
@@ -26,6 +28,10 @@ def _resolve_config(config_obj):
             return getattr(mod, class_name)
     return DevelopmentConfig
 
+# Initialize extensions (no app yet)
+db = SQLAlchemy()
+bcrypt = Bcrypt()
+
 
 def create_app(config_class=DevelopmentConfig):
     config_cls = _resolve_config(config_class)
@@ -36,6 +42,21 @@ def create_app(config_class=DevelopmentConfig):
 
     bcrypt.init_app(app)
     jwt.init_app(app)
+
+    # Config
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///hbnb.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SECRET_KEY'] = 'supersecretkey'
+
+    # Initialize extensions
+    db.init_app(app)
+    bcrypt.init_app(app)
+
+    # Import namespaces here (AFTER app and db are ready)
+    from app.api.v1.users import api as users_ns
+    from app.api.v1.places import api as places_ns
+    from app.api.v1.amenities import api as amenities_ns
+    from app.api.v1.reviews import api as reviews_ns
 
     api = Api(app, version='1.0', title='HBnB API', description='HBnB Application API')
 
