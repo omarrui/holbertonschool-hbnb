@@ -1,5 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt
 from app.services import facade
 
 api = Namespace('users', description='User operations')
@@ -20,14 +21,16 @@ class UserList(Resource):
     @jwt_required()
     def post(self):
         """Register a new user (admin only)"""
-        identity = get_jwt_identity()
-        if isinstance(identity, dict):
-            current_user = identity.get('id') or identity.get('user_id')
-            is_admin = bool(identity.get('is_admin', False))
-        else:
-            current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+        # Determine admin status from JWT claims
+        jwt_claims = None
+        try:
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
+        if jwt_claims and 'is_admin' in jwt_claims:
+            is_admin = bool(jwt_claims.get('is_admin', False))
         if not is_admin:
             return {'error': 'Admin privileges required'}, 403
 
@@ -71,18 +74,28 @@ class UserResource(Resource):
         Non-admins can only update their own profile and cannot change email/password.
         """
         identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
         if isinstance(identity, dict):
             current_user = identity.get('id') or identity.get('user_id')
             is_admin = bool(identity.get('is_admin', False))
         else:
             current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = bool(current_user_obj and getattr(current_user_obj, 'is_admin', False))
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = bool(current_user_obj and getattr(current_user_obj, 'is_admin', False))
 
         # Non-admins can only edit themselves
         if not is_admin and user_id != current_user:
-            # per QA, non-admins attempting to access admin-only user modification should get this message
-            return {'error': 'Admin privileges required'}, 403
+            # non-admin attempting to modify another user's data
+            return {'error': 'Unauthorized action'}, 403
 
         user_data = api.payload or {}
 

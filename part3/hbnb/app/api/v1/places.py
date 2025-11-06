@@ -45,13 +45,24 @@ class PlaceList(Resource):
     def post(self):
         """Create a new place (authenticated users only). Owner is set to the current user."""
         identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            from flask_jwt_extended import get_jwt
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
         if isinstance(identity, dict):
             current_user = identity.get('id') or identity.get('user_id')
             is_admin = bool(identity.get('is_admin', False))
         else:
             current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
 
         data = api.payload or {}
 
@@ -95,13 +106,24 @@ class PlaceResource(Resource):
     def put(self, place_id):
         """Update an existing place (only owner can update)."""
         identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            from flask_jwt_extended import get_jwt
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
         if isinstance(identity, dict):
             current_user = identity.get('id') or identity.get('user_id')
             is_admin = bool(identity.get('is_admin', False))
         else:
             current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
 
         res = facade.get_place(place_id)
         if not res:

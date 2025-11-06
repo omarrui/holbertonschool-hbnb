@@ -37,13 +37,24 @@ class ReviewList(Resource):
     def post(self):
         """Register a new review (authenticated only). Prevent self-review and duplicates."""
         identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            from flask_jwt_extended import get_jwt
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
         if isinstance(identity, dict):
             current_user = identity.get('id') or identity.get('user_id')
             is_admin = bool(identity.get('is_admin', False))
         else:
             current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
         data = api.payload or {}
 
         place_id = data.get('place_id')
@@ -99,13 +110,24 @@ class ReviewResource(Resource):
     def put(self, review_id):
         """Update a review's information (only author can update)."""
         identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            from flask_jwt_extended import get_jwt
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
         if isinstance(identity, dict):
             current_user = identity.get('id') or identity.get('user_id')
             is_admin = bool(identity.get('is_admin', False))
         else:
             current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
         data = api.payload or {}
 
         review = facade.get_review(review_id)
@@ -132,13 +154,24 @@ class ReviewResource(Resource):
     def delete(self, review_id):
         """Delete a review (only author can delete)."""
         identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            from flask_jwt_extended import get_jwt
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
         if isinstance(identity, dict):
             current_user = identity.get('id') or identity.get('user_id')
             is_admin = bool(identity.get('is_admin', False))
         else:
             current_user = identity
-            current_user_obj = facade.get_user(current_user)
-            is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
         review = facade.get_review(review_id)
         if not review:
             return {'error': 'Review not found'}, 404

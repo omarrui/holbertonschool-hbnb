@@ -25,3 +25,6 @@ CONFIG_MAP = {
     'production': ProductionConfig,
     'default': DevelopmentConfig,
 }
+
+# Backwards-compatible name expected by app.__init__.py
+config = CONFIG_MAP
