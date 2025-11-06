@@ -1,10 +1,15 @@
 from app.models.base_model import BaseModel
-from app import db, bcrypt
+# from app import db, bcrypt  # CIRCULAR IMPORT FIX
+
+def _get_db():
+    """Import db only when needed to avoid circular import."""
+    from app import db
+    return db
 
 # Association table for Place-Amenity many-to-many relationship
 place_amenity = db.Table('place_amenity',
-    db.Column('place_id', db.String(60), db.ForeignKey('places.id'), primary_key=True),
-    db.Column('amenity_id', db.String(60), db.ForeignKey('amenities.id'), primary_key=True)
+    _get_db().Column('place_id', _get_db().String(60), _get_db().ForeignKey('places.id'), primary_key=True),
+    _get_db().Column('amenity_id', _get_db().String(60), _get_db().ForeignKey('amenities.id'), primary_key=True)
 )
 
 class User(BaseModel):
@@ -13,15 +18,15 @@ class User(BaseModel):
     __tablename__ = 'users'
 
     # ----------------- Columns ----------------- #
-    first_name = db.Column(db.String(50), nullable=False)
-    last_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), nullable=False, unique=True)
-    password = db.Column(db.String(128), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)
+    first_name = _get_db().Column(_get_db().String(50), nullable=False)
+    last_name = _get_db().Column(_get_db().String(50), nullable=False)
+    email = _get_db().Column(_get_db().String(120), nullable=False, unique=True)
+    password = _get_db().Column(_get_db().String(128), nullable=False)
+    is_admin = _get_db().Column(_get_db().Boolean, default=False)
 
     # ----------------- Relationships ----------------- #
-    places = db.relationship('Place', backref='owner', lazy=True)
-    reviews = db.relationship('Review', backref='user', lazy=True)
+    places = _get_db().relationship('Place', backref='owner', lazy=True)
+    reviews = _get_db().relationship('Review', backref='user', lazy=True)
 
     # ----------------- Initialization ----------------- #
     def __init__(self, first_name, last_name, email, is_admin=False):
@@ -93,16 +98,16 @@ class Place(BaseModel):
     __tablename__ = 'places'
 
     # ----------------- Columns ----------------- #
-    title = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=True)
-    price = db.Column(db.Float, nullable=False)
-    latitude = db.Column(db.Float, nullable=True)
-    longitude = db.Column(db.Float, nullable=True)
-    owner_id = db.Column(db.String(60), db.ForeignKey('users.id'), nullable=False)
+    title = _get_db().Column(_get_db().String(100), nullable=False)
+    description = _get_db().Column(db.Text, nullable=True)
+    price = _get_db().Column(_get_db().Float, nullable=False)
+    latitude = _get_db().Column(_get_db().Float, nullable=True)
+    longitude = _get_db().Column(_get_db().Float, nullable=True)
+    owner_id = _get_db().Column(_get_db().String(60), _get_db().ForeignKey('users.id'), nullable=False)
 
     # ----------------- Relationships ----------------- #
-    reviews = db.relationship('Review', backref='place', lazy=True, cascade='all, delete-orphan')
-    amenities = db.relationship('Amenity', secondary=place_amenity, back_populates='places')
+    reviews = _get_db().relationship('Review', backref='place', lazy=True, cascade='all, delete-orphan')
+    amenities = _get_db().relationship('Amenity', secondary=place_amenity, back_populates='places')
 
     # ----------------- Initialization ----------------- #
     def __init__(self, title, description, price, latitude, longitude, owner):

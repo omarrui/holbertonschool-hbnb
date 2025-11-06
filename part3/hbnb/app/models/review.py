@@ -2,7 +2,12 @@
 """Review model for HolbertonBnB application."""
 
 from app.models.base_model import BaseModel
-from app import db
+# from app import db  # CIRCULAR IMPORT FIX
+
+def _get_db():
+    """Import db only when needed to avoid circular import."""
+    from app import db
+    return db
 
 
 class Review(BaseModel):
@@ -17,10 +22,10 @@ class Review(BaseModel):
 
     __tablename__ = 'reviews'
 
-    text = db.Column(db.String(), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    place_id = db.Column(db.String(36), db.ForeignKey('places.id'), nullable=False)
-    user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
+    text = _get_db().Column(_get_db().String(), nullable=False)
+    rating = _get_db().Column(_get_db().Integer, nullable=False)
+    place_id = _get_db().Column(_get_db().String(36), _get_db().ForeignKey('places.id'), nullable=False)
+    user_id = _get_db().Column(_get_db().String(36), _get_db().ForeignKey('users.id'), nullable=False)
 
     def __init__(self, text, rating, place_id, user_id):
         super().__init__()
