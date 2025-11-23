@@ -118,8 +118,8 @@ http://localhost:3000
    * ✅ "Login" button visible if not logged in, "Logout" if logged in
 
 **Screenshot:**
-![Home Page](static/images/home.png)
-![Place Card](static/images/palce\ card.png)
+![Home Page](images/home.png)
+![Place Card](images/palce\ card.png)
 
 ---
 
@@ -137,7 +137,7 @@ http://localhost:3000
 * ✅ "Add Review" button visible if logged in
 
 **Screenshots:**
-![Place Details](static/images/image1.jpg)
+![Place Details](images/image1.jpg)
 ![Amenities Icons](static/images/icon_bed.png)
 ![Amenities Icons](static/images/icon_bath.png)
 ![Amenities Icons](static/images/icon_wifi.png)
