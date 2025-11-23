@@ -102,7 +102,7 @@ http://localhost:3000
 * ✅ "Login" button replaced by "Logout"
 
 **Screenshot:**
-![Login Page](static/images/login.png)
+![Login Page](images/login.png)
 
 ---
 
