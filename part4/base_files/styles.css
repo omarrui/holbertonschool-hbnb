@@ -480,3 +480,26 @@ footer p {
     transform: translateY(-3px);
     box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
 }
+/* Logo Styling */
+header .logo {
+    display: flex;
+    align-items: center;
+    font-family: 'Arial Black', 'Impact', sans-serif;
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #ff5a5f; /* Airbnb-style red */
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    letter-spacing: 2px;
+    transition: transform 0.2s, color 0.2s;
+}
+
+header .logo img {
+    margin-left: 8px;
+    width: 40px;
+    height: 40px;
+}
+
+header .logo:hover {
+    transform: scale(1.1);
+    color: #ff7f7f;
+}
