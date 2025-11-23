@@ -1,0 +1,482 @@
+/* ===== Reset & Base Styles ===== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #2c3e50;
+    line-height: 1.6;
+}
+
+/* ===== Header ===== */
+header {
+    background-color: #f8f8f8;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.logo {
+    height: 45px;
+    width: auto;
+    filter: brightness(1.1);
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+nav {
+    display: flex;
+    gap: 1rem;
+}
+
+nav a,
+.login-button {
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.8rem;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+nav a:hover,
+.login-button:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* ===== Main Content ===== */
+main {
+    padding: 3rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    flex: 1;
+}
+
+/* ===== White Card Style for All Sections ===== */
+.login-form,
+#filter,
+.place-card,
+.place-details,
+.place-info,
+.reviews,
+.add-review.form {
+    background: #ffffff; /* white box */
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+/* ===== Filter Section ===== */
+#filter label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-right: 1rem;
+    font-size: 1.1rem;
+}
+
+#price-filter {
+    padding: 0.8rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 15px;
+    font-size: 1rem;
+    background: white;
+    transition: all 0.3s ease;
+}
+
+#price-filter:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* ===== Places Grid ===== */
+#places-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px; /* more spacing between cards */
+    padding: 30px;
+    justify-content: center; /* center cards */
+}
+
+/* ===== Place Cards ===== */
+.place-card {
+    border: 1px solid #ddd;
+    border-radius: 15px;
+    padding: 1.5rem;
+    width: 250px; /* bigger cards */
+    text-align: center;
+    background: #ffffff;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s ease;
+    overflow: hidden;
+}
+
+.place-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+}
+
+.place-card img {
+    width: 100%;
+    height: 250px; /* bigger images */
+    border-radius: 15px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.place-card:hover img {
+    transform: scale(1.05);
+}
+
+.place-card h3 {
+    font-size: 18px;
+    margin: 10px 0;
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.place-card .price {
+    color: #28a745;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.place-card .host {
+    color: #7f8c8d;
+    margin-bottom: 1.2rem;
+    font-style: italic;
+}
+
+.details-button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.details-button:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== Footer ===== */
+footer {
+    background-color: #f8f8f8;
+    padding: 20px;
+    text-align: center;
+    color: #2c3e50;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+footer p {
+    font-size: 1rem;
+    font-weight: 400;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+/* ===== Add Review Form Styling ===== */
+.add-review.form {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 3rem 2.5rem;
+    max-width: 600px;
+    margin: 2rem auto;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.add-review.form:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.add-review.form h3 {
+    font-size: 2rem;
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 2rem;
+    border-bottom: 3px solid #667eea;
+    display: inline-block;
+    padding-bottom: 0.5rem;
+}
+
+.add-review.form .form-group {
+    margin-bottom: 1.8rem;
+    text-align: left;
+}
+
+.add-review.form .form-group label {
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.add-review.form .form-group input,
+.add-review.form .form-group select,
+.add-review.form .form-group textarea {
+    width: 100%;
+    padding: 1rem 1.2rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    background: #fdfdfd;
+    transition: all 0.3s ease;
+}
+
+.add-review.form .form-group input:focus,
+.add-review.form .form-group select:focus,
+.add-review.form .form-group textarea:focus {
+    border-color: #667eea;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+}
+
+.add-review.form button[type="submit"] {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    margin-top: 1rem;
+}
+
+.add-review.form button[type="submit"]:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== Place Details Card ===== */
+.place-details {
+    background: #ffffff;
+    margin: 2rem auto;
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    transition: transform 0.3s ease;
+}
+
+.place-details:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+}
+
+.place-details img {
+    width: 300px;
+    height: 200px;
+    border-radius: 15px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.place-details .place-text {
+    flex: 1;
+}
+
+.place-details h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.place-details .price {
+    color: #667eea;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.place-details .host {
+    font-style: italic;
+    color: #7f8c8d;
+}
+
+/* ===== Amenities Section ===== */
+.amenities {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    margin: 2rem auto;
+    max-width: 900px;
+}
+
+.amenities h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+}
+
+.amenities ul {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.amenities li {
+    background: #667eea;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.amenities li:hover {
+    background: #5a6fd8;
+}
+
+/* ===== Reviews Section ===== */
+.reviews {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 900px;
+    margin: 2rem auto;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+}
+
+.review-card {
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+
+.review-card:hover {
+    transform: translateY(-1px);
+}
+
+.review-card .reviewer {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.review-card .rating {
+    color: #f39c12;
+    margin-left: 0.3rem;
+}
+
+.review-card .comment {
+    color: #555;
+    margin-top: 0.5rem;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    main {
+        padding: 2rem 1rem;
+    }
+
+    #places-list {
+        flex-direction: column;
+        gap: 20px;
+        padding: 15px;
+    }
+
+    .place-details {
+        flex-direction: column;
+        text-align: center;
+    }
+    .place-details img {
+        width: 100%;
+        height: 200px;
+        margin-bottom: 1rem;
+    }
+    .amenities ul {
+        justify-content: center;
+    }
+}
+/* ===== Add Review Button on Place Details ===== */
+.add-review-button {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 2.5rem;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+    transition: all 0.3s ease;
+    margin-top: 1rem;
+}
+
+.add-review-button:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+}
