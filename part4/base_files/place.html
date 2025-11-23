@@ -12,46 +12,22 @@
         <a href="index.html" class="logo">
             <img src="images/icon.png" alt="Application Logo">HBNB
         </a>
-    
+
         <nav>
             <a href="index.html" class="nav-button">Home</a>
             <a id="login-link" class="login-button" href="login.html">Login</a>
         </nav>
     </header>
-    
 
     <main>
-        <!-- Place Details Section -->
-        <section id="place-details">
-            <div class="place-details">
-                <h1 class="title-place">Place Name</h1>
-                <img src="images/image1.jpg" alt="Place Image" class="place-image">
-                <div class="place-info">
-                    <p><strong>Host:</strong> John Doe</p>
-                    <p><strong>Price:</strong> $120/night</p>
-                    <p><strong>Description:</strong> A cozy and bright apartment in the city center.</p>
-                    <p><strong>Amenities:</strong></p>
-                    <ul>
-                        <li>Wi-Fi</li>
-                        <li>Air Conditioning</li>
-                        <li>Parking</li>
-                        <li>Pets allowed</li>
-                    </ul>
-                </div>
-            </div>
-        </section>
+        <!-- PLACE DETAILS WILL BE DYNAMICALLY INSERTED HERE -->
+        <section id="place-details"></section>
 
-        <!-- Reviews Section -->
+        <!-- REVIEWS SECTION -->
         <section id="reviews">
-            <h2>Reviews</h2>
-            <!-- Sample static review, JS can append dynamically -->
-            <div class="review-card">
-                <p><strong>Comment:</strong> Great place!</p>
-                <p><strong>User:</strong> Alice</p>
-                <p><strong>Rating:</strong> 4/5</p>
-            </div>
+            <div id="reviews-section"></div>
 
-            <!-- Add Review Button / Form handled by JS -->
+            <!-- Add Review Button (always shown, links to add_review.html) -->
             <div id="add-review-container">
                 <a href="add_review.html" class="add-review-button">Add Review</a>
             </div>

@@ -19,7 +19,10 @@ const samplePlaces = [
       image: "images/image1.jpg",
       description: "Nice and cozy.",
       amenities: ["Wi-Fi", "Air Conditioning"],
-      reviews: []
+      reviews: [
+          { user: "Alice", comment: "Loved it!", rating: 5 },
+          { user: "Bob", comment: "Very comfortable.", rating: 4 }
+      ]
     },
     {
       id: 2,
@@ -29,7 +32,9 @@ const samplePlaces = [
       image: "images/image2.jpg",
       description: "Ocean view.",
       amenities: ["Parking", "Wi-Fi"],
-      reviews: []
+      reviews: [
+          { user: "Charlie", comment: "Amazing view!", rating: 5 }
+      ]
     },
     {
       id: 3,
@@ -39,7 +44,9 @@ const samplePlaces = [
       image: "images/image3.jpg",
       description: "Quiet and peaceful.",
       amenities: ["Fireplace", "Heating"],
-      reviews: []
+      reviews: [
+          { user: "Dana", comment: "Perfect getaway.", rating: 5 }
+      ]
     }
 ];
 
@@ -112,7 +119,7 @@ async function fetchPlaces(token) {
         displayPlaces(places);
     } catch (error) {
         console.error(error);
-        alert("Unable to load places. Showing sample data.");
+        console.log("Showing fallback sample data.");
         displayPlaces(samplePlaces);
     }
 }
@@ -185,7 +192,12 @@ document.addEventListener('DOMContentLoaded', () => {
 ============================= */
 function getPlaceIdFromURL() {
     const params = new URLSearchParams(window.location.search);
-    return params.get('id');
+    return parseInt(params.get('id'));
+}
+
+// Get a place from samplePlaces by ID
+function getPlaceFromSample(placeId) {
+    return samplePlaces.find(p => p.id === placeId);
 }
 
 async function fetchPlaceDetails(placeId) {
@@ -200,7 +212,7 @@ async function fetchPlaceDetails(placeId) {
 
     } catch (error) {
         console.error(error);
-        alert("Could not load place details.");
+        console.log("Could not load API data; using fallback sample place.");
     }
 }
 
@@ -238,6 +250,19 @@ function displayPlaceDetails(place) {
         </div>
     `;
 }
+
+// Initialize Place Page
+document.addEventListener("DOMContentLoaded", () => {
+    const placeId = getPlaceIdFromURL();
+    if (!placeId || !document.getElementById("place-details")) return;
+
+    // Display sample place immediately
+    const fallbackPlace = getPlaceFromSample(placeId);
+    if (fallbackPlace) displayPlaceDetails(fallbackPlace);
+
+    // Fetch real data in background
+    fetchPlaceDetails(placeId);
+});
 
 /* =============================
       ADD REVIEW PAGE
