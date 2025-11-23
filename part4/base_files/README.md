@@ -138,9 +138,9 @@ http://localhost:3000
 
 **Screenshots:**
 ![Place Details](images/image1.jpg)
-![Amenities Icons](static/images/icon_bed.png)
-![Amenities Icons](static/images/icon_bath.png)
-![Amenities Icons](static/images/icon_wifi.png)
+![Amenities Icons](images/icon_bed.png)
+![Amenities Icons](images/icon_bath.png)
+![Amenities Icons](images/icon_wifi.png)
 
 ---
 
@@ -158,7 +158,7 @@ http://localhost:3000
 * ✅ Review appears in list
 
 **Screenshot:**
-![Add Review](static/images/review.png)
+![Add Review](images/review.png)
 
 ---
 
