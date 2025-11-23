@@ -32,20 +32,22 @@ HBnB (Holberton BnB) allows users to:
 
 ## 📁 Project Structure
 
-```
-hbnb/
-├── app.py                  # Flask application and API routes
-├── templates/              # HTML templates
-│   ├── index.html          # List of places
-│   ├── login.html          # Login form
-│   ├── place.html          # Place details
-│   └── add_review.html     # Add review form
-├── static/                 # Static files
-│   ├── styles.css          # Main stylesheet
-│   ├── scripts.js          # JS functionality
-│   └── images/             # Images (logo, places, icons, etc.)
-└── README.md               # This file
-```
+```part4/
+├── base_files/          # Your front-end files
+│   ├── add_review.html
+│   ├── index.html
+│   ├── login.html
+│   ├── place.html
+│   ├── README.md
+│   ├── scripts.js
+│   ├── styles.css
+│   └── images/          # All your images
+├── back/                # Your back-end files
+│   ├── hbnb/            # Flask app code
+│   ├── README.md
+│   ├── requirements.txt
+│   └── venv/
+
 
 ---
 
