@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Add Review - HBnB{% endblock %}
+{% block content %}
+<main>
+    <form id="review-form" action="{{ url_for('add_review', place_id=place.id) }}" method="post" class="form" novalidate>
+        <h2>Add a Review for {{ place.name }}</h2>
+        <label for="comment">Your Review:</label>
+        <textarea id="comment" name="comment" required></textarea>
+        <fieldset class="star-rating-fieldset" aria-label="Rating" role="radiogroup">
+            <legend class="visually-hidden">Rating</legend>
+            <div class="star-select" id="star-select" data-selected="0">
+                {% for r in [1,2,3,4,5] %}
+                <button type="button" class="star-choice" data-value="{{ r }}" aria-label="Rate {{ r }} out of 5">☆</button>
+                {% endfor %}
+            </div>
+            <input type="hidden" id="rating" name="rating" value="" required />
+        </fieldset>
+        <button type="submit" class="details-button">Submit Review</button>
+        <div id="review-msg" class="form-msg" aria-live="polite"></div>
+    </form>
+</main>
+{% endblock %}

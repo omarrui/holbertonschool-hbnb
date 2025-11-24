@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}List of Places - HBnB{% endblock %}
+{% block content %}
+<section id="filter" aria-labelledby="filter-heading" class="filter-bar">
+	<h2 id="filter-heading" class="visually-hidden">Filter Places</h2>
+	<label for="price-filter">Max Price:</label>
+	<select id="price-filter" data-dynamic="true">
+		<!-- Options injected by scripts.js: 10,50,100,All -->
+	</select>
+</section>
+
+<section id="places-list" class="places-list" aria-labelledby="places-heading">
+	<h2 id="places-heading">Places</h2>
+	<div class="cards-container" id="places-cards" data-dynamic="true">
+		<!-- Dynamic content injected by scripts.js -->
+	</div>
+</section>
+{% endblock %}

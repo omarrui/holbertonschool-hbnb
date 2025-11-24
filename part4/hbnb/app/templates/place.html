@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Place Details - {{ place.name }}{% endblock %}
+{% block content %}
+<main>
+    <section id="place-details" class="place-details" aria-labelledby="place-name" data-dynamic="true">
+        <!-- Dynamic details injected by scripts.js (Task 3) -->
+    </section>
+    <section id="reviews" class="reviews" aria-labelledby="reviews-heading" data-dynamic="true">
+        <h3 id="reviews-heading">Reviews</h3>
+        <div class="review-cards" id="reviews-cards"><p class="loading">Loading reviews...</p></div>
+    </section>
+    <section id="add-review" class="add-review" data-dynamic="auth-visible">
+        <h2>Add a Review</h2>
+        <form id="review-form" class="form" novalidate style="display:none">
+            <label for="comment">Your Review:</label>
+            <textarea id="comment" name="comment" required></textarea>
+            <fieldset class="star-rating-fieldset" aria-label="Rating" role="radiogroup">
+                <legend class="visually-hidden">Rating</legend>
+                <div class="star-select" id="star-select" data-selected="0">
+                    {% for r in [1,2,3,4,5] %}
+                    <button type="button" class="star-choice" data-value="{{ r }}" aria-label="Rate {{ r }} out of 5">☆</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" id="rating" name="rating" value="" required />
+            </fieldset>
+            <button type="submit" class="details-button">Submit Review</button>
+            <div id="place-review-msg" class="form-msg" aria-live="polite"></div>
+        </form>
+        <p class="login-prompt" style="display:none">Login to add a review.</p>
+    </section>
+</main>
+{% endblock %}

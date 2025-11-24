@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Create a New Place{% endblock %}
+{% block content %}
+<section class="create-place" id="create-place-section">
+  <h2>Create a New Place</h2>
+  <p id="create-place-msg" class="info"></p>
+  <form id="create-place-form" novalidate>
+    <div class="form-row">
+      <label for="title">Title *</label>
+      <input id="title" name="title" type="text" required maxlength="100" />
+    </div>
+    <div class="form-row">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" rows="4"></textarea>
+    </div>
+    <div class="form-row">
+      <label for="price">Price per night *</label>
+      <input id="price" name="price" type="number" min="0" step="1" required />
+    </div>
+    <div class="form-row">
+      <label for="latitude">Latitude</label>
+      <input id="latitude" name="latitude" type="number" step="0.000001" />
+    </div>
+    <div class="form-row">
+      <label for="longitude">Longitude</label>
+      <input id="longitude" name="longitude" type="number" step="0.000001" />
+    </div>
+    <fieldset class="form-row">
+      <legend>Amenities</legend>
+      <div id="amenities-box" class="amenities-box">
+        <p class="loading">Loading amenities...</p>
+      </div>
+    </fieldset>
+    <button type="submit" class="details-button">Create Place</button>
+  </form>
+  <p class="login-prompt" id="create-place-login" style="display:none">Login required to create a place.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block title %}Register - HBnB{% endblock %}
+{% block content %}
+<main>
+  <form id="register-form" class="login-form" novalidate>
+    <h2>Create Account</h2>
+    <div id="register-error" class="error-message" aria-live="polite"></div>
+    <label for="first_name">First Name:</label>
+    <input type="text" id="first_name" name="first_name" required>
+    <label for="last_name">Last Name:</label>
+    <input type="text" id="last_name" name="last_name" required>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required autocomplete="email">
+    <label for="password">Password (min 6 chars):</label>
+    <input type="password" id="password" name="password" required minlength="6" autocomplete="new-password">
+    <button type="submit" class="login-button">Register</button>
+  </form>
+</main>
+{% endblock %}
