@@ -1,32 +1,26 @@
-from .base import BaseModel
+from app import db
+from app.models.base_model import BaseModel
+
 
 class Amenity(BaseModel):
-    """Represents an amenity (feature) available in a Place."""
+    """Represents an amenity in the HolbertonBnB application."""
+
+    __tablename__ = 'amenities'
+
+    # Colonnes
+    name = db.Column(db.String(50), nullable=False, unique=True)
+
+    # Relations
+    places = db.relationship('Place', secondary='place_amenity', back_populates='amenities')
 
     def __init__(self, name):
-        """Initialize a new Amenity instance."""
         super().__init__()
         self.name = name
 
-    @property
-    def name(self):
-        """Get the amenity name."""
-        return self._name
-
-    @name.setter
-    def name(self, value):
-        """Set the amenity name with validation."""
-        if not isinstance(value, str) or not value.strip():
-            raise ValueError("Amenity name is required")
-        if len(value) > 50:
-            raise ValueError("Amenity name must be less than 50 characters")
-        self._name = value.strip()
-
     def to_dict(self):
-        """Serialize the amenity into a dictionary."""
         return {
             "id": self.id,
             "name": self.name,
-            "created_at": self.created_at.isoformat(),
-            "updated_at": self.updated_at.isoformat(),
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }

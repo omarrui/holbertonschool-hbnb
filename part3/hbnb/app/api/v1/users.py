@@ -18,22 +18,8 @@ class UserList(Resource):
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
     @api.response(400, 'Invalid input data')
-    @jwt_required()
     def post(self):
-        """Register a new user (admin only)"""
-        # Determine admin status from JWT claims
-        jwt_claims = None
-        try:
-            jwt_claims = get_jwt()
-        except Exception:
-            jwt_claims = None
-
-        is_admin = False
-        if jwt_claims and 'is_admin' in jwt_claims:
-            is_admin = bool(jwt_claims.get('is_admin', False))
-        if not is_admin:
-            return {'error': 'Admin privileges required'}, 403
-
+        """Register a new user"""
         user_data = api.payload or {}
 
         existing_user = facade.get_user_by_email(user_data.get('email'))
@@ -43,7 +29,7 @@ class UserList(Resource):
             new_user = facade.create_user(user_data)
             return new_user.to_dict(), 201
         except ValueError as e:
-            return {'error': str(e)}, 400
+            return {'message': str(e)}, 400
 
     @api.response(200, 'List of users retrieved successfully')
     def get(self):
@@ -62,7 +48,7 @@ class UserResource(Resource):
             return {'error': 'User not found'}, 404
         return user.to_dict(), 200
 
-    @api.expect(user_model, validate=True)
+    @api.expect(user_model, validate=False)
     @api.response(200, 'User updated successfully')
     @api.response(404, 'User not found')
     @api.response(400, 'Invalid input data')
@@ -96,9 +82,11 @@ class UserResource(Resource):
         if not is_admin and user_id != current_user:
             # non-admin attempting to modify another user's data
             return {'error': 'Unauthorized action'}, 403
-
+        
         user_data = api.payload or {}
-
+        
+        if not is_admin and user_data.get('owner_id') and user_data.get('owner_id') != current_user:
+            return {"error": "Unauthorized action"}, 403
         # If non-admin, disallow changing email or password through this endpoint
         if not is_admin and ('email' in user_data or 'password' in user_data):
             return {'error': 'You cannot modify email or password'}, 400

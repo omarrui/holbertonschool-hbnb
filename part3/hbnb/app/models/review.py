@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Review model for HolbertonBnB application."""
-
+from app import db
 from app.models.base_model import BaseModel
 # from app import db  # CIRCULAR IMPORT FIX
 

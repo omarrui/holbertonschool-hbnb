@@ -4,35 +4,51 @@ from typing import Any, Dict, List, Optional
 
 
 class Repository(ABC):
-    @abstractmethod
-    def add(self, obj: Any) -> None:
-        """Ajoute un objet au dépôt."""
-        raise NotImplementedError
+    """
+    Abstract base class for a repository.
+    """
 
     @abstractmethod
-    def get(self, obj_id: str) -> Optional[Any]:
-        """Récupère un objet par son id."""
-        raise NotImplementedError
+    def add(self, obj):
+        """
+        Add an object to the repository.
+        """
+        pass
 
     @abstractmethod
-    def get_all(self) -> List[Any]:
-        """Récupère tous les objets."""
-        raise NotImplementedError
+    def get(self, obj_id):
+        """
+        Get an object from the repository by its ID.
+        """
+        pass
 
     @abstractmethod
-    def update(self, obj_id: str, data: Dict[str, Any]) -> Optional[Any]:
-        """Met à jour un objet avec un dict de valeurs."""
-        raise NotImplementedError
+    def get_all(self):
+        """
+        Get all objects from the repository.
+        """
+        pass
 
     @abstractmethod
-    def delete(self, obj_id: str) -> None:
-        """Supprime un objet par son id."""
-        raise NotImplementedError
+    def get_by_attribute(self, attr_name, attr_value):
+        """
+        Get an object by a specific attribute.
+        """
+        pass
 
     @abstractmethod
-    def get_by_attribute(self, attr_name: str, attr_value: Any) -> Optional[Any]:
-        """Récupère le premier objet dont l'attribut == valeur."""
-        raise NotImplementedError
+    def update(self, obj_id, data):
+        """
+        Update an object in the repository.
+        """
+        pass
+
+    @abstractmethod
+    def delete(self, obj_id):
+        """
+        Delete an object from the repository by its ID.
+        """
+        pass
 
 
 class InMemoryRepository(Repository):
