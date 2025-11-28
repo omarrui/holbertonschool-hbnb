@@ -19,7 +19,7 @@ CREATE TABLE users (
     password VARCHAR(255) NOT NULL,
     is_admin BOOLEAN DEFAULT FALSE,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------
@@ -34,7 +34,7 @@ CREATE TABLE places (
     longitude FLOAT,
     owner_id CHAR(36),
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (owner_id) REFERENCES users(id)
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE reviews (
     user_id CHAR(36) NOT NULL,
     place_id CHAR(36) NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (place_id) REFERENCES places(id),
     UNIQUE (user_id, place_id)
@@ -61,7 +61,7 @@ CREATE TABLE amenities (
     id CHAR(36) PRIMARY KEY,
     name VARCHAR(255) UNIQUE NOT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
 -- -----------------------------
@@ -79,11 +79,11 @@ CREATE TABLE place_amenity (
 -- =============================
 
 -- Insert administrator user
-INSERT INTO users (id, first_name, last_name, email, password, is_admin, created_at, updated_at) VALUES 
-('36c9050e-ddd3-4c3b-9731-9f487208bbc1', 'Admin', 'HBnB', 'admin@hbnb.io', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxkdJx5ZWp5GZ3PVFV6VfNjKzxq', TRUE, NOW(), NOW());
+INSERT OR REPLACE INTO users (id, first_name, last_name, email, password, is_admin, created_at, updated_at) VALUES 
+('36c9050e-ddd3-4c3b-9731-9f487208bbc1', 'Admin', 'HBnB', 'admin@hbnb.io', '$2b$12$5VkrO9ikT3ppdKqJUiI35u8GWxei6AMB/Zxa9xTZYdrfzpYkbi/MK', TRUE, datetime('now'), datetime('now'));
 
 -- Insert initial amenities
 INSERT INTO amenities (id, name, created_at, updated_at) VALUES 
-('550e8400-e29b-41d4-a716-446655440001', 'WiFi', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655440002', 'Swimming Pool', NOW(), NOW()),
-('550e8400-e29b-41d4-a716-446655440003', 'Air Conditioning', NOW(), NOW());
+('550e8400-e29b-41d4-a716-446655440001', 'WiFi', datetime('now'), datetime('now')),
+('550e8400-e29b-41d4-a716-446655440002', 'Swimming Pool', datetime('now'), datetime('now')),
+('550e8400-e29b-41d4-a716-446655440003', 'Air Conditioning', datetime('now'), datetime('now'));

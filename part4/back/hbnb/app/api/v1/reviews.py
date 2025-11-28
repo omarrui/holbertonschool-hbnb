@@ -9,7 +9,7 @@ api = Namespace('reviews', description='Review operations')
 review_in_model = api.model('ReviewIn', {
     'text': fields.String(required=True, description='Text of the review'),
     'rating': fields.Integer(required=True, description='Rating of the place (1-5)'),
-    'user_id': fields.String(required=True, description='ID of the user'),
+    'user_id': fields.String(required=False, description='ID of the user'),
     'place_id': fields.String(required=True, description='ID of the place'),
 })
 
@@ -67,7 +67,7 @@ class ReviewList(Resource):
 
         place = place_res.get('place')
         # Prevent users from reviewing their own place (admins can bypass)
-        if not is_admin and getattr(place, 'owner', None) == current_user:
+        if not is_admin and getattr(place, 'owner_id', None) == current_user:
             return {'error': 'You cannot review your own place'}, 400
 
         # Prevent duplicate reviews by same user on same place (admins can bypass)

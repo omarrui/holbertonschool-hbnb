@@ -81,8 +81,14 @@ class HBnBFacade:
             raise ValueError("title too long")
 
         price = data.get("price")
-        if price is not None and price < 0:
+        if price is not None and price <= 0:
             raise ValueError("invalid price")
+
+        # Check for duplicate title
+        existing_places = self.place_repo.get_all()
+        for p in existing_places:
+            if getattr(p, 'title', '') == title:
+                 raise ValueError("Place with same title already exists")
 
         latitude = data.get("latitude")
         if latitude is not None and not (-90 <= latitude <= 90):
@@ -103,10 +109,9 @@ class HBnBFacade:
             price=price,
             latitude=latitude,
             longitude=longitude,
-            owner=owner_id,
+            owner_id=owner_id,
         )
-        place.amenities = amenity_ids
-        place.reviews = []
+        place.amenities = [self.amenity_repo.get(a_id) for a_id in amenity_ids]
         self.place_repo.add(place)
         return place
 
@@ -115,14 +120,12 @@ class HBnBFacade:
         if not place:
             return None
 
-        owner = self.user_repo.get(place.owner)
-        amenities = [
-            self.amenity_repo.get(aid)
-            for aid in getattr(place, "amenities", [])
-            if self.amenity_repo.get(aid)
-        ]
-        reviews = getattr(place, "reviews", [])
-        return {"place": place, "owner": owner, "amenities": amenities, "reviews": reviews}
+        return {
+            "place": place,
+            "owner": place.owner,
+            "amenities": place.amenities,
+            "reviews": place.reviews
+        }
 
     def get_all_places(self):
         return self.place_repo.get_all()
@@ -167,14 +170,14 @@ class HBnBFacade:
             new_owner = data["owner_id"]
             if not new_owner or not self.user_repo.get(new_owner):
                 raise ValueError("invalid owner_id")
-            place.owner = new_owner
+            place.owner_id = new_owner
 
         if "amenities" in data:
             new_ids = data.get("amenities") or []
             for a_id in new_ids:
                 if not self.amenity_repo.get(a_id):
                     raise ValueError(f"amenity {a_id} not found")
-            place.amenities = new_ids
+            place.amenities = [self.amenity_repo.get(a_id) for a_id in new_ids]
 
         if updatable:
             place.update(updatable)
@@ -274,3 +277,12 @@ class HBnBFacade:
 
         self.review_repo.delete(review_id)
         return True
+
+    def delete_user(self, user_id: str):
+        return self.user_repo.delete(user_id)
+
+    def delete_place(self, place_id: str):
+        return self.place_repo.delete(place_id)
+
+    def delete_amenity(self, amenity_id: str):
+        return self.amenity_repo.delete(amenity_id)

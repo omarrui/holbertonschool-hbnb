@@ -8,7 +8,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
+    SQLALCHEMY_DATABASE_URI = 'sqlite:////Users/omarrouigui/Documents/Holberton/holbertonschool-hbnb/part4/back/hbnb/instance/hbnb.db'  # Absolute path
 
 class TestingConfig(Config):
     TESTING = True

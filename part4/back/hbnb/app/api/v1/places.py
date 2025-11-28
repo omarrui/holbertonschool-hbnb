@@ -10,7 +10,7 @@ place_model = api.model("Place", {
     "price": fields.Float(required=True, description="Price per night"),
     "latitude": fields.Float(required=True, description="Latitude of the place"),
     "longitude": fields.Float(required=True, description="Longitude of the place"),
-    "owner_id": fields.String(required=True, description="ID of the owner"),
+    "owner_id": fields.String(required=False, description="ID of the owner"),
     "amenities": fields.List(fields.String, description="List of amenities IDs")
 })
 
@@ -66,6 +66,9 @@ class PlaceList(Resource):
 
         data = api.payload or {}
 
+        if not is_admin and data.get('owner_id') and data.get('owner_id') != current_user:
+            return {"error": "Unauthorized action"}, 403
+
         if not is_admin:
             data['owner_id'] = current_user
         try:
@@ -94,6 +97,8 @@ class PlaceResource(Resource):
             return {"error": "Place not found"}, 404
         place = res["place"]
         data = _serialize_place(place)
+        if res.get("owner"):
+            data["owner"] = res["owner"].to_dict()
         data["amenities"] = [{"id": a.id, "name": getattr(a, "name", None)} for a in res.get("amenities", [])]
         data["reviews"] = [{"id": r.id, "text": getattr(r, "text", None)} for r in res.get("reviews", [])]
         return data, 200
@@ -130,7 +135,7 @@ class PlaceResource(Resource):
             return {"error": "Place not found"}, 404
         place = res["place"]
 
-        if not is_admin and getattr(place, "owner", None) != current_user:
+        if not is_admin and getattr(place, "owner_id", None) != current_user:
             return {"error": "Unauthorized action"}, 403
 
         data = api.payload or {}
@@ -147,3 +152,82 @@ class PlaceResource(Resource):
         if not updated:
             return {"error": "Place not found"}, 404
         return _serialize_place(updated), 200
+
+@api.route("/<place_id>/reviews")
+class PlaceReviewList(Resource):
+    @api.response(200, "List of reviews for the place")
+    @api.response(404, "Place not found")
+    def get(self, place_id):
+        """Get all reviews for a specific place"""
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+        reviews = place.get("reviews", [])
+        return [{"id": r.id, "text": getattr(r, "text", None), "rating": getattr(r, "rating", None), "user_id": getattr(r, "user_id", None)} for r in reviews], 200
+
+@api.route("/<place_id>/amenities")
+class PlaceAmenityList(Resource):
+    @api.response(200, "List of amenities for the place")
+    @api.response(404, "Place not found")
+    def get(self, place_id):
+        """Get all amenities for a specific place"""
+        place = facade.get_place(place_id)
+        if not place:
+            return {"error": "Place not found"}, 404
+        amenities = place.get("amenities", [])
+        return [{"id": a.id, "name": getattr(a, "name", None)} for a in amenities], 200
+
+    @api.expect(api.model('PlaceAmenity', {'amenity_id': fields.String(required=True)}), validate=True)
+    @api.response(200, "Amenity added to place")
+    @api.response(404, "Place or Amenity not found")
+    @api.response(403, "Unauthorized")
+    @jwt_required()
+    def post(self, place_id):
+        """Add an amenity to a place (owner only)"""
+        identity = get_jwt_identity()
+        jwt_claims = None
+        try:
+            from flask_jwt_extended import get_jwt
+            jwt_claims = get_jwt()
+        except Exception:
+            jwt_claims = None
+
+        is_admin = False
+        if isinstance(identity, dict):
+            current_user = identity.get('id') or identity.get('user_id')
+            is_admin = bool(identity.get('is_admin', False))
+        else:
+            current_user = identity
+            if jwt_claims and 'is_admin' in jwt_claims:
+                is_admin = bool(jwt_claims.get('is_admin', False))
+            else:
+                current_user_obj = facade.get_user(current_user)
+                is_admin = getattr(current_user_obj, 'is_admin', False) if current_user_obj else False
+
+        place_res = facade.get_place(place_id)
+        if not place_res:
+            return {"error": "Place not found"}, 404
+        place = place_res["place"]
+
+        if not is_admin and getattr(place, "owner_id", None) != current_user:
+            return {"error": "Unauthorized action"}, 403
+
+        data = api.payload or {}
+        amenity_id = data.get("amenity_id")
+        if not amenity_id:
+            return {"error": "amenity_id is required"}, 400
+
+        amenity = facade.get_amenity(amenity_id)
+        if not amenity:
+            return {"error": "Amenity not found"}, 404
+
+        if amenity not in place.amenities:
+            place.amenities.append(amenity)
+            current_ids = [a.id for a in place.amenities]
+            current_amenities = place_res.get("amenities", [])
+            current_ids = [a.id for a in current_amenities]
+            if amenity_id not in current_ids:
+                current_ids.append(amenity_id)
+                facade.update_place(place_id, {"amenities": current_ids})
+
+        return {"message": "Amenity added successfully"}, 200

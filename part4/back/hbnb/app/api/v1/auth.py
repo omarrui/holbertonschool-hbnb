@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required
 from app.services import facade
 
 api = Namespace('auth', description='Authentication operations')
@@ -25,8 +25,11 @@ class LoginResource(Resource):
             return {'error': 'email and password are required'}, 400
 
         user = facade.get_user_by_email(email)
+        print(user)
+        print(user.check_password(password))
         if not user or not user.check_password(password):
-            return {'error': 'Invalid email or password'}, 401
+            return {'error': f"{email} {password}Invalid email or password"}, 401
+
 
         claims = {
             'user_id': user.id,
@@ -38,5 +41,14 @@ class LoginResource(Resource):
 
         return {
             'access_token': access_token,
-            'token_type': 'Bearer'
+            'token_type': 'Bearer',
+            'message': 'Login successful'
         }, 200
+
+@api.route('/protected')
+class ProtectedResource(Resource):
+    @jwt_required()
+    @api.response(200, 'Access granted')
+    @api.response(401, 'Missing or invalid token')
+    def get(self):
+        return {'message': 'Access granted'}, 200
